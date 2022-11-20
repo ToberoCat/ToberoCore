@@ -1,17 +1,33 @@
 package io.github.toberocat.toberocore.task;
 
+import io.github.toberocat.toberocore.ToberoCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 public class TaskPromise<R> {
 
     private Runnable runnable;
     private R value;
     private boolean resolved;
+
+    public TaskPromise() {
+
+    }
+
+    public TaskPromise(@NotNull Consumer<Consumer<R>> callback) {
+        callback.accept(this::resolve);
+
+        ToberoCore.getPlugin().getLogger().log(Level.SEVERE, "A promise didn't resolve. " +
+                "This got done for you, else your code might have stopped working. " +
+                "Fix it and resolve it the proper way");
+        if (!resolved)
+            resolve(null);
+    }
 
     public void resolve(@Nullable R r) {
         synchronized (this) {
