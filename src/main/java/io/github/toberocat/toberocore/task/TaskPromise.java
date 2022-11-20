@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class TaskPromise<R> {
 
@@ -33,6 +35,22 @@ public class TaskPromise<R> {
     }
 
     public void then(@NotNull Runnable runnable) {
-        this.runnable = runnable;
+        if (resolved) runnable.run();
+        else this.runnable = runnable;
+    }
+
+    public void then(@NotNull Consumer<R> runnable) {
+        then(() -> runnable.accept(value));
+    }
+
+    public <T> TaskPromise<T> then(@NotNull Supplier<TaskPromise<T>> runnable) {
+        TaskPromise<T> promise = new TaskPromise<>();
+
+        then(() -> {
+            TaskPromise<T> newPromise = runnable.get();
+            newPromise.then(() -> promise.resolve(newPromise.value));
+        });
+
+        return promise;
     }
 }
