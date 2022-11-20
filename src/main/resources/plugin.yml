@@ -1,0 +1,8 @@
+name: "${project.name}"
+version: "${project.version}"
+main: "${project.groupId}.toberocore.${project.artifactId}"
+api-version: 1.18
+authors: [ Tobero ]
+softdepend:
+  - Vault
+description: A core used in my plugins
