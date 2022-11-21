@@ -25,8 +25,8 @@ public final class ToberoCore extends JavaPlugin {
 
     private Economy economy;
 
-    private boolean includesVault = true;
-    private boolean includesPAPI = true;
+    private boolean includesVault = false;
+    private boolean includesPAPI = false;
 
     @Override
     public void onEnable() {
@@ -60,8 +60,8 @@ public final class ToberoCore extends JavaPlugin {
         for (String dependency : getDescription().getSoftDepend()) {
             if (pluginManager.isPluginEnabled(dependency)) {
                 switch (dependency) {
-                    case "PlaceholderAPI" -> includesPAPI = false;
-                    case "Vault" -> includesVault = false;
+                    case "PlaceholderAPI" -> includesPAPI = true;
+                    case "Vault" -> includesVault = true;
                 }
             }
         }
@@ -69,7 +69,9 @@ public final class ToberoCore extends JavaPlugin {
 
     private void setupVaultEconomy() {
         if (includesVault) {
-            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            RegisteredServiceProvider<Economy> rsp = getServer()
+                    .getServicesManager()
+                    .getRegistration(Economy.class);
 
             if (rsp != null) {
                 economy = rsp.getProvider();
@@ -117,7 +119,7 @@ public final class ToberoCore extends JavaPlugin {
     }
 
     public @NotNull Optional<Economy> getEconomy() {
-        return Optional.of(economy);
+        return Optional.ofNullable(economy);
     }
 
     public boolean placeholderAPI() {

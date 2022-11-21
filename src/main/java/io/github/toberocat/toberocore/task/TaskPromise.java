@@ -21,12 +21,6 @@ public class TaskPromise<R> {
 
     public TaskPromise(@NotNull Consumer<Consumer<R>> callback) {
         callback.accept(this::resolve);
-
-        ToberoCore.getPlugin().getLogger().log(Level.SEVERE, "A promise didn't resolve. " +
-                "This got done for you, else your code might have stopped working. " +
-                "Fix it and resolve it the proper way");
-        if (!resolved)
-            resolve(null);
     }
 
     public void resolve(@Nullable R r) {

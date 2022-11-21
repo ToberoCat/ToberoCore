@@ -1,6 +1,6 @@
 name: "${project.name}"
 version: "${project.version}"
-main: "${project.groupId}.toberocore.${project.artifactId}"
+main: "io.github.toberocat.toberocore.ToberoCore"
 api-version: 1.18
 authors: [ Tobero ]
 softdepend:
