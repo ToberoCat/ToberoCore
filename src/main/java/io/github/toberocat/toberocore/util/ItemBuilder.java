@@ -24,7 +24,7 @@ public class ItemBuilder {
     private final ItemMeta meta;
 
     public ItemBuilder() {
-        this(new ItemStack(Material.AIR));
+        this(new ItemStack(Material.DIRT, 1));
     }
 
     public ItemBuilder(ItemStack item) {

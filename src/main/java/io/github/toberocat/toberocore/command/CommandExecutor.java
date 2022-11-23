@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                              @NotNull org.bukkit.command.Command command,
                              @NotNull String label,
                              @NotNull String[] args) {
-        if (args.length == 0) return action == null ? false : action.apply(sender);
+        if (args.length == 0) return action != null && action.apply(sender);
 
         SubCommand sub = children.get(args[0]);
         if (sub == null) return false;
@@ -91,7 +92,7 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                                                 @NotNull org.bukkit.command.Command command,
                                                 @NotNull String label,
                                                 @NotNull String[] args) {
-        if (args.length == 0) return tabComplete;
+        if (args.length <= 1) return tabComplete;
 
         SubCommand sub = children.get(args[0]);
 

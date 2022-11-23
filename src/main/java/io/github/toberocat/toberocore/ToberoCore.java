@@ -1,6 +1,7 @@
 package io.github.toberocat.toberocore;
 
 import io.github.toberocat.toberocore.action.provided.*;
+import io.github.toberocat.toberocore.gui.AbstractGui;
 import io.github.toberocat.toberocore.individual.AbstractIndividuals;
 import io.github.toberocat.toberocore.item.property.*;
 import io.github.toberocat.toberocore.listener.GuiListener;
@@ -51,6 +52,7 @@ public final class ToberoCore extends JavaPlugin {
         AbstractIndividuals.cleanup();
         CurrencyCore.dispose();
         SimpleBar.cleanup();
+        GuiListener.cleanup();
         Task.dispose(); // Make sure all threads close safely
     }
 
