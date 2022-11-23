@@ -3,12 +3,15 @@ package io.github.toberocat.toberocore.util;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -75,6 +78,18 @@ public final class ItemUtils {
         stack.setItemMeta(meta);
 
         return stack;
+    }
+
+    public static <T, Z> @Nullable Z getPersistent(@NotNull ItemStack item,
+                                         @NotNull NamespacedKey key,
+                                         @NotNull PersistentDataType<T, Z> type) {
+        return item.getItemMeta().getPersistentDataContainer().get(key, type);
+    }
+
+    public static <T, Z> boolean hasPersistent(@NotNull ItemStack item,
+                                         @NotNull NamespacedKey key,
+                                         @NotNull PersistentDataType<T, Z> type) {
+        return item.getItemMeta().getPersistentDataContainer().has(key, type);
     }
 
     public static List<String> getLore(ItemStack stack) {
