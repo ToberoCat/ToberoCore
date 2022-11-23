@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created: 02/11/2022
@@ -20,6 +21,14 @@ public class QuickPlayerSubCommand extends PlayerSubCommand implements QuickComm
     public QuickPlayerSubCommand(@NotNull String label, @NotNull QuickPlayerRun run) {
         super(label);
         this.run = run;
+    }
+
+    public QuickPlayerSubCommand(@NotNull String label, @NotNull QuickPlayerRunNoArgs run) {
+        super(label);
+        this.run = (u, args) -> {
+            run.apply(u);
+            return true;
+        };
     }
 
     @Override
@@ -38,7 +47,13 @@ public class QuickPlayerSubCommand extends PlayerSubCommand implements QuickComm
         return null;
     }
 
+    @FunctionalInterface
     public interface QuickPlayerRun {
         boolean apply(@NotNull Player player, @NotNull String[] args) throws CommandExceptions;
+    }
+
+    @FunctionalInterface
+    public interface QuickPlayerRunNoArgs {
+        void apply(@NotNull Player player) throws CommandExceptions;
     }
 }
