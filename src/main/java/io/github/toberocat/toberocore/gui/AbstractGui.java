@@ -113,7 +113,8 @@ public abstract class AbstractGui {
     protected void renderArrows(Inventory inventory, int current, int max) {
         if (current != 0) inventory.setItem(inventory.getSize() - 9,
                 createItem(Material.ARROW, "&c&lBack"));
-        if (max != current) inventory.setItem(inventory.getSize() - 1,
+        if (max != current && max > 0 && !pages.get(max).isEmpty())
+            inventory.setItem(inventory.getSize() - 1,
                 createItem(Material.ARROW, "&a&lNext"));
     }
 

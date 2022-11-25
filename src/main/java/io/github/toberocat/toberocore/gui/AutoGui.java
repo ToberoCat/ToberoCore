@@ -4,6 +4,7 @@ import io.github.toberocat.toberocore.gui.page.AutoNavPage;
 import io.github.toberocat.toberocore.gui.page.AutoPage;
 import io.github.toberocat.toberocore.gui.page.Page;
 import io.github.toberocat.toberocore.gui.slot.Slot;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -13,12 +14,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static io.github.toberocat.toberocore.util.ItemUtils.createItem;
+
 public abstract class AutoGui extends AbstractGui {
     protected final int[] usableSlots;
 
     public AutoGui(@NotNull Player player, @NotNull Inventory inventory, int[] usableSlots) {
         super(player, inventory);
         this.usableSlots = usableSlots;
+    }
+
+    @Override
+    public void render() {
+        pages.get(currentPage).render(inventory);
+        if (settings.isPageArrows()) renderArrows(inventory, currentPage, pages.size() - 1);
+        if (settings.getQuitGui() != null) inventory.setItem(inventory.getSize() - 5,
+                createItem(Material.BARRIER, "&cExit"));
     }
 
     @Override

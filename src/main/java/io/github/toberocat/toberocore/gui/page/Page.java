@@ -8,6 +8,8 @@ import org.bukkit.inventory.Inventory;
 public class Page {
     protected Slot[] slots;
 
+    protected boolean isEmpty = true;
+
     public Page(int inventorySize) {
         slots = new Slot[inventorySize];
     }
@@ -45,6 +47,7 @@ public class Page {
 
     public boolean addSlot(Slot slot, int slotPos) {
         slots[slotPos] = slot;
+        this.isEmpty = false;
         return false;
     }
 
@@ -54,5 +57,9 @@ public class Page {
 
     public Slot[] getSlots() {
         return slots;
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
     }
 }
