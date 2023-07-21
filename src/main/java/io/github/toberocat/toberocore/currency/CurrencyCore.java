@@ -20,9 +20,7 @@ public final class CurrencyCore {
     public static void initialize(@NotNull ToberoCore ToberoCore) {
         Optional<Economy> economy = ToberoCore.getEconomy();
         mobcoinsCurrency = createCurrency("mobcoins"); // TODO get from mobcoins plugin
-        vaultCurrency = (economy.isEmpty()) ?
-                createCurrency("vault") :
-                new VaultCurrency(economy.get());
+        vaultCurrency = (economy.isEmpty()) ? createCurrency("vault") : new VaultCurrency(economy.get());
     }
 
     public static void registerCurrency(@NotNull String id, @NotNull Currency currency) {
