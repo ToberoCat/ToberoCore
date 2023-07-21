@@ -13,9 +13,6 @@
 
     <description>A core used in my plugins</description>
     <properties>
-        <java.version>16</java.version>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <server.location>H:\Development\Minecraft\Spigot\Server1.18\plugins</server.location>
