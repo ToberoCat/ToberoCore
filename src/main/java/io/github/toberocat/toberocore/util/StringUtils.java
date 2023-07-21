@@ -1,5 +1,7 @@
 package io.github.toberocat.toberocore.util;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -112,7 +114,7 @@ public final class StringUtils {
      * @param _msg The message you want to format.
      * @return The message with the color codes replaced with the color.
      */
-    public static String format(String _msg) {
+    public static String format(final String _msg) {
         String msg = _msg;
 
         // Converting hex in text to color
@@ -124,6 +126,10 @@ public final class StringUtils {
         }
 
         return ChatColor.translateAlternateColorCodes('&', msg);
+    }
+
+    public static @NotNull Component miniMessageFormat(@NotNull String msg) {
+        return MiniMessage.miniMessage().deserialize(msg);
     }
 
     /**

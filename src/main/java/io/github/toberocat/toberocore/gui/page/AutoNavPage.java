@@ -5,11 +5,11 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import static io.github.toberocat.toberocore.util.ItemUtils.createItem;
+import static io.github.toberocat.toberocore.item.ItemUtils.createItem;
 
 public class AutoNavPage extends NavigationPage {
     protected final int[] freeSlots;
-    protected static final ItemStack GRAY = createItem(Material.GRAY_STAINED_GLASS_PANE, "");
+    protected static final ItemStack GRAY = createItem(Material.GRAY_STAINED_GLASS_PANE, "", 1);
 
     protected int lastFree;
 

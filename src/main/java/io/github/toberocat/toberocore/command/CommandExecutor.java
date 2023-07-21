@@ -11,10 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 
@@ -26,16 +23,16 @@ import java.util.function.Function;
 public class CommandExecutor extends Command<SubCommand> implements TabExecutor {
 
     private static final Map<String, CommandExecutor> registeredExecutors = new HashMap<>();
-    private final PluginCommand command;
-    private Function<CommandSender, Boolean> action;
+    private NothingAction action;
+
+    private Function<String[], List<String>> tab;
 
     private CommandExecutor(@NotNull PluginCommand command, @NotNull String prefix) {
-        super(command.getLabel(), command.getPermission());
-        this.command = command;
-        this.prefix = StringUtils.format(prefix);
+        super(command.getLabel(), command.getLabel());
+        this.prefix = "";
 
-        this.command.setExecutor(this);
-        this.command.setTabCompleter(this);
+        command.setExecutor(this);
+        command.setTabCompleter(this);
 
         registeredExecutors.put(label, this);
     }
@@ -47,13 +44,13 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
 
     public static @NotNull CommandExecutor createExecutor(@NotNull JavaPlugin plugin,
                                                           @NotNull String command) {
-        return createExecutor(String.format("§8[§e%s§8]§7 ", plugin.getName()), command);
+        return createExecutor(String.format("§8[§e%s§8]§7", plugin.getName()), command);
     }
 
     public static @NotNull CommandExecutor createExecutor(@NotNull FileConfiguration config,
                                                           @NotNull String command) {
         return createExecutor(
-                config.getString("prefix", "§8[§eSpivakNetwork§8]§7") + " ", command);
+                config.getString("prefix", "§8[§eSpivakNetwork§8]§7"), command);
     }
 
     public static @NotNull CommandExecutor createExecutor(@NotNull String prefix,
@@ -62,7 +59,8 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
         if (executor != null) return executor;
 
         PluginCommand pluginCommand = Bukkit.getPluginCommand(command);
-        if (pluginCommand == null) throw new RuntimeException("Plugin Command " + command + " is null");
+        if (pluginCommand == null)
+            throw new RuntimeException("Plugin Command " + command + " is null");
 
         return new CommandExecutor(pluginCommand, prefix);
     }
@@ -74,15 +72,14 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                              @NotNull org.bukkit.command.Command command,
                              @NotNull String label,
                              @NotNull String[] args) {
-        if (args.length == 0) return action != null && action.apply(sender);
-
-        SubCommand sub = children.get(args[0]);
-        if (sub == null) return false;
+        SubCommand sub = args.length == 0 ? null : children.get(args[0]);
 
         try {
-            return sub.routeCall(sender, args);
+            return sub != null
+                    ? sub.routeCall(sender, args)
+                    : action != null && action.execute(sender, args);
         } catch (CommandExceptions e) {
-            sender.sendMessage(prefix + StringUtils.format(e.getMessageId()));
+            sender.sendMessage(prefix + "§c" + StringUtils.format(e.getMessageId()));
             return false;
         }
     }
@@ -92,7 +89,23 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                                                 @NotNull org.bukkit.command.Command command,
                                                 @NotNull String label,
                                                 @NotNull String[] args) {
-        if (args.length <= 1) return tabComplete;
+        List<String> unsorted = getTab(sender, args);
+        if (unsorted == null) return null;
+
+        List<String> results = new ArrayList<>();
+        for (String arg : args) {
+            for (String a : unsorted) {
+                if (a.toLowerCase().startsWith(arg.toLowerCase())) {
+                    results.add(a);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    private @Nullable List<String> getTab(@NotNull CommandSender sender, @NotNull String[] args) {
+        if (args.length <= 1) return tab == null ? tabComplete : tab.apply(args);
 
         SubCommand sub = children.get(args[0]);
 
@@ -103,9 +116,25 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
     //<editor-fold desc="Getters and Setters">
 
     public CommandExecutor setNothingAction(@NotNull Function<CommandSender, Boolean> action) {
+        this.action = (sender, args) -> action.apply(sender);
+        return this;
+    }
+
+    public CommandExecutor setNothingAction(@NotNull NothingAction action) {
         this.action = action;
         return this;
     }
 
+    public CommandExecutor setTab(Function<String[], List<String>> tab) {
+        this.tab = tab;
+        return this;
+    }
+
     //</editor-fold>
+
+    @FunctionalInterface
+    public interface NothingAction {
+        boolean execute(@NotNull CommandSender sender, @NotNull String[] args)
+                throws CommandExceptions;
+    }
 }

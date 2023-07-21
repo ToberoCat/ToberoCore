@@ -1,7 +1,7 @@
 package io.github.toberocat.toberocore.individual.player;
 
 import io.github.toberocat.toberocore.individual.AbstractIndividuals;
-import io.github.toberocat.toberocore.util.YamlLoader;
+import io.github.toberocat.toberocore.util.file.YamlLoader;
 import io.github.toberocat.toberocore.task.Task;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;

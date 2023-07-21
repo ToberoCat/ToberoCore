@@ -1,13 +1,11 @@
 package io.github.toberocat.toberocore.gui;
 
 import io.github.toberocat.toberocore.gui.settings.GuiSettings;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import static io.github.toberocat.toberocore.util.ItemUtils.createItem;
+import static io.github.toberocat.toberocore.item.ItemUtils.createItem;
 
 public class TabbedGui extends AutoGui {
 

@@ -22,6 +22,7 @@ public class MaterialProperty extends ItemProperty {
     @Override
     public @NotNull ItemStack apply(@NotNull ItemStack item, @NotNull ConfigurationSection configurationSection, @NotNull ItemInfo itemInfo) {
         String materialName = getValue(configurationSection);
+        System.out.println(configurationSection);
         if (materialName == null) return item;
 
         Material material = Material.getMaterial(materialName);

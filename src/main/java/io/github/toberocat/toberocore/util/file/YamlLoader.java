@@ -1,5 +1,6 @@
-package io.github.toberocat.toberocore.util;
+package io.github.toberocat.toberocore.util.file;
 
+import io.github.toberocat.toberocore.util.FileUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;

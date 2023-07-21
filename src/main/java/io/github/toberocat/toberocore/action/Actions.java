@@ -5,30 +5,28 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Actions {
 
-    private final List<String> strings;
+    private final String[] strings;
     private final Map<String, String> placeholders = new HashMap<>();
+    private final Set<Action> localActions = new HashSet<>();
 
-    public Actions(@NotNull List<String> strings) {
+    public Actions(@NotNull String[] strings) {
         this.strings = strings;
     }
 
+    public Actions(@NotNull List<String> strings) {
+        this.strings = strings.toArray(String[]::new);
+    }
+
     public Actions(@NotNull String string) {
-        this(new ArrayList<>(List.of(string)));
+        this.strings = new String[]{string};
     }
 
     public Actions() {
         this(new ArrayList<>());
-    }
-
-    public void add(@NotNull String string) {
-        strings.add(string);
     }
 
     public @NotNull Actions placeholder(@Nullable String what, @Nullable String with) {
@@ -41,6 +39,11 @@ public class Actions {
         return this;
     }
 
+    public @NotNull Actions localActions(@NotNull Set<Action> actions) {
+        localActions.addAll(actions);
+        return this;
+    }
+
     /**
      * @param commandSender the sender executing
      * @return true if all actions succeeded with their execution
@@ -50,7 +53,7 @@ public class Actions {
 
         for (String string : strings) {
             string = StringUtils.replace(string, placeholders);
-            success = success && ActionCore.run(string, commandSender);
+            success = success && ActionCore.run(string, commandSender, localActions);
         }
 
         return success;

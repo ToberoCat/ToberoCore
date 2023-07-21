@@ -1,7 +1,11 @@
-package io.github.toberocat.toberocore.util;
+package io.github.toberocat.toberocore.item;
 
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
+import io.github.toberocat.toberocore.util.StringUtils;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -13,12 +17,13 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import static io.github.toberocat.toberocore.util.StringUtils.format;
 
 public final class ItemUtils {
+
+    @Deprecated
     public static ItemStack setLore(ItemStack stack, String[] lore) {
         ItemStack newStack = new ItemStack(stack);
         ItemMeta meta = newStack.getItemMeta();
@@ -28,6 +33,7 @@ public final class ItemUtils {
         return newStack;
     }
 
+    @Deprecated
     public static ItemStack createItem(final Material material, final String name) {
         final ItemStack item = new ItemStack(material, 1);
         final ItemMeta meta = item.getItemMeta();
@@ -38,6 +44,7 @@ public final class ItemUtils {
         return item;
     }
 
+    @Deprecated
     public static ItemStack createItem(final Material material, final String name, final String[] lore) {
         final ItemStack item = new ItemStack(material, 1);
         final ItemMeta meta = item.getItemMeta();
@@ -51,16 +58,43 @@ public final class ItemUtils {
         return item;
     }
 
-    public static @NotNull ItemStack createSkull(OfflinePlayer player, int count, String name, String[] lore) {
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD, count, (short) 3);
-        SkullMeta skull = (SkullMeta) item.getItemMeta();
-        skull.setDisplayName(name);
-        skull.setLore(Arrays.asList(lore));
-        skull.setOwningPlayer(player);
-        item.setItemMeta(skull);
+    public static @NotNull ItemStack createItem(@NotNull Material material,
+                                                @NotNull String name,
+                                                int amount,
+                                                @NotNull String... lore) {
+        ItemStack item = new ItemStack(material, amount);
+        item.editMeta(meta -> {
+            meta.displayName(Component.text(name));
+            meta.lore(Arrays.stream(lore)
+                    .map(ItemUtils::component)
+                    .toList());
+        });
         return item;
     }
 
+    public static @NotNull ItemStack createSkull(OfflinePlayer player, int count, String name, String[] lore) {
+        ItemStack item = createItem(Material.PLAYER_HEAD, name, count, lore);
+        item.editMeta(SkullMeta.class, skull -> skull.setOwningPlayer(player));
+        return item;
+    }
+
+    public static @NotNull ItemStack createHead(@NotNull String textureId,
+                                                @NotNull String title,
+                                                int amount,
+                                                @NotNull String... lore) {
+        ItemStack head = createItem(Material.PLAYER_HEAD, title, amount, lore);
+        if (!(head.getItemMeta() instanceof SkullMeta headMeta))
+            return head;
+
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), "");
+        profile.setProperty(new ProfileProperty("textures", textureId));
+        headMeta.setPlayerProfile(profile);
+
+        head.setItemMeta(headMeta);
+        return head;
+    }
+
+    @Deprecated
     public static ItemStack modify(ItemStack stack, String title, String... lore) {
         ItemMeta meta = stack.getItemMeta();
         meta.setDisplayName(format(title));
@@ -70,7 +104,9 @@ public final class ItemUtils {
         return item;
     }
 
-    public static ItemStack addEnchantment(ItemStack stack, Enchantment enchantment, int strength) {
+    public static @NotNull ItemStack addEnchantment(@NotNull ItemStack stack,
+                                                    @NotNull Enchantment enchantment,
+                                                    int strength) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return stack;
 
@@ -80,21 +116,29 @@ public final class ItemUtils {
         return stack;
     }
 
-    public static <T, Z> @Nullable Z getPersistent(@NotNull ItemStack item,
-                                         @NotNull NamespacedKey key,
-                                         @NotNull PersistentDataType<T, Z> type) {
+    public static <T, Z> @Nullable Z getPersistent(@Nullable ItemStack item,
+                                                   @NotNull NamespacedKey key,
+                                                   @NotNull PersistentDataType<T, Z> type) {
+        if (item == null)
+            return null;
+
         return item.getItemMeta().getPersistentDataContainer().get(key, type);
     }
 
     public static <T, Z> boolean hasPersistent(@NotNull ItemStack item,
-                                         @NotNull NamespacedKey key,
-                                         @NotNull PersistentDataType<T, Z> type) {
+                                               @NotNull NamespacedKey key,
+                                               @NotNull PersistentDataType<T, Z> type) {
         return item.getItemMeta().getPersistentDataContainer().has(key, type);
     }
 
+    @Deprecated
     public static List<String> getLore(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null || meta.getLore() == null) return new ArrayList<>();
         return meta.getLore();
+    }
+
+    private static @NotNull Component component(@NotNull String title) {
+        return Component.text(format(title));
     }
 }

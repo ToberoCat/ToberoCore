@@ -1,12 +1,14 @@
 package io.github.toberocat.toberocore.action;
 
 import io.github.toberocat.toberocore.util.StreamUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,8 +21,12 @@ public final class ActionCore {
         actions.add(action);
     }
 
-    private static @Nullable Action getAction(@NotNull String formattedLabel) {
-        return StreamUtils.find(actions, x -> formatLabel(x.label()).equals(formattedLabel));
+    private static @Nullable Action getAction(@NotNull String formattedLabel, @NotNull Set<Action> localActions) {
+        Set<Action> actions = new HashSet<>(localActions);
+        actions.addAll(ActionCore.actions);
+
+        Action action = StreamUtils.find(actions, x -> formatLabel(x.label()).equals(formattedLabel));
+        return action;
     }
 
     /**
@@ -28,12 +34,12 @@ public final class ActionCore {
      * @param commandSender the sender executing
      * @return if the action was found or not
      */
-    public static boolean run(@NotNull String string, @NotNull CommandSender commandSender) {
-
+    public static boolean run(@NotNull String string,
+                              @NotNull CommandSender commandSender,
+                              @NotNull Set<Action> localActions) {
         /* Args */
 
         String[] argsWithLabel = string.split("\\s+");
-
         if (argsWithLabel.length == 0) return false;
 
         String label = argsWithLabel[0];
@@ -47,7 +53,7 @@ public final class ActionCore {
 
         /* Action */
 
-        Action action = getAction(label);
+        Action action = getAction(label, localActions);
         if (action == null) return false;
 
         /* Run */
@@ -78,7 +84,7 @@ public final class ActionCore {
         boolean success = true;
 
         for (String string : strings) {
-            success = success && run(string, commandSender);
+            success = success && run(string, commandSender, new HashSet<>());
         }
 
         return success;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static io.github.toberocat.toberocore.util.ItemUtils.createItem;
+import static io.github.toberocat.toberocore.item.ItemUtils.createItem;
 
 public abstract class AbstractGui {
 
@@ -107,15 +107,15 @@ public abstract class AbstractGui {
         pages.get(currentPage).render(inventory);
         if (settings.isPageArrows()) renderArrows(inventory, currentPage, pages.size() - 1);
         if (settings.getQuitGui() != null) inventory.setItem(inventory.getSize() - 5,
-                createItem(Material.BARRIER, "&cExit"));
+                createItem(Material.BARRIER, "&cExit", 1));
     }
 
     protected void renderArrows(Inventory inventory, int current, int max) {
         if (current != 0) inventory.setItem(inventory.getSize() - 9,
-                createItem(Material.ARROW, "&c&lBack"));
+                createItem(Material.ARROW, "&c&lBack", 1));
         if (max != current && max > 0 && !pages.get(max).isEmpty())
             inventory.setItem(inventory.getSize() - 1,
-                createItem(Material.ARROW, "&a&lNext"));
+                createItem(Material.ARROW, "&a&lNext", 1));
     }
 
     public void clear() {
