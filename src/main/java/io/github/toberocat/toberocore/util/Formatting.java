@@ -1,10 +1,7 @@
 package io.github.toberocat.toberocore.util;
 
 import io.github.toberocat.toberocore.ToberoCore;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

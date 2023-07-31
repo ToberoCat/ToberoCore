@@ -1,27 +1,15 @@
 package io.github.toberocat.toberocore.currency;
 
-import io.github.toberocat.toberocore.ToberoCore;
 import io.github.toberocat.toberocore.currency.provided.LocalCurrency;
-import io.github.toberocat.toberocore.currency.provided.VaultCurrency;
-import net.milkbowl.vault.economy.Economy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public final class CurrencyCore {
 
     private static final Map<String, Currency> registeredCurrencies = new HashMap<>();
-    private static @Nullable Currency mobcoinsCurrency;
-    private static Currency vaultCurrency;
-
-    public static void initialize(@NotNull ToberoCore ToberoCore) {
-        Optional<Economy> economy = ToberoCore.getEconomy();
-        mobcoinsCurrency = createCurrency("mobcoins"); // TODO get from mobcoins plugin
-        vaultCurrency = (economy.isEmpty()) ? createCurrency("vault") : new VaultCurrency(economy.get());
-    }
 
     public static void registerCurrency(@NotNull String id, @NotNull Currency currency) {
         if (registeredCurrencies.containsKey(id)) {
@@ -39,14 +27,6 @@ public final class CurrencyCore {
         Currency currency = new LocalCurrency(id);
         registerCurrency(id, currency);
         return currency;
-    }
-
-    public static @Nullable Currency getMobcoinsCurrency() {
-        return mobcoinsCurrency;
-    }
-
-    public static @NotNull Currency getVaultCurrency() {
-        return vaultCurrency;
     }
 
     public static void dispose() {

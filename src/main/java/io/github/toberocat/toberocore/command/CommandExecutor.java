@@ -1,7 +1,7 @@
 package io.github.toberocat.toberocore.command;
 
-import io.github.toberocat.toberocore.util.StringUtils;
 import io.github.toberocat.toberocore.command.exceptions.CommandExceptions;
+import io.github.toberocat.toberocore.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -11,7 +11,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 

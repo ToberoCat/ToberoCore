@@ -1,19 +1,30 @@
 package io.github.toberocat.toberocore.action;
 
+import io.github.toberocat.toberocore.action.provided.*;
 import io.github.toberocat.toberocore.util.StreamUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public final class ActionCore {
+
+    static {
+        new AddExpAction().register();
+        new ActionbarAction().register();
+        new BroadcastAction().register();
+        new CloseAction().register();
+        new ConsoleCommandAction().register();
+        new MessageAction().register();
+        new SoundAction().register();
+        new PlayerCommandAction().register();
+        new TitleAction().register();
+    }
 
     private static final Set<Action> actions = new HashSet<>();
 

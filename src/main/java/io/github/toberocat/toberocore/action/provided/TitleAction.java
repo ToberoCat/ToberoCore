@@ -1,18 +1,10 @@
 package io.github.toberocat.toberocore.action.provided;
 
-import io.github.toberocat.toberocore.ToberoCore;
 import io.github.toberocat.toberocore.action.Action;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class TitleAction extends Action {
-
-    private final io.github.toberocat.toberocore.ToberoCore ToberoCore;
-
-    public TitleAction(@NotNull ToberoCore ToberoCore) {
-        this.ToberoCore = ToberoCore;
-    }
 
     @Override
     public @NotNull String label() {
@@ -25,17 +17,12 @@ public class TitleAction extends Action {
         if (args.length < 1) return;
 
         String title = args[0].replace("_", " ");
-        if (ToberoCore.placeholderAPI()) title = PlaceholderAPI.setPlaceholders(player, title);
 
         String subtitle = null;
 
-        if (length >= 2) {
+        if (length >= 2)
             subtitle = args[1];
 
-            if (ToberoCore.placeholderAPI()) {
-                subtitle = PlaceholderAPI.setPlaceholders(player, subtitle);
-            }
-        }
 
         int in = 20;
 

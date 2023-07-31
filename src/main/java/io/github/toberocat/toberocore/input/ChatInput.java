@@ -1,11 +1,9 @@
 package io.github.toberocat.toberocore.input;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,24 +36,24 @@ public class ChatInput implements Listener {
     }
 
     public static void prompt(@NotNull JavaPlugin plugin,
-                                            @NotNull Player player,
-                                            @NotNull String message,
-                                            @NotNull Function<String, Action> callback) {
+                              @NotNull Player player,
+                              @NotNull String message,
+                              @NotNull Function<String, Action> callback) {
         player.sendMessage(String.format(message));
         ChatInput chatInput = new ChatInput(player.getUniqueId(), callback);
         plugin.getServer().getPluginManager().registerEvents(chatInput, plugin);
     }
 
     @EventHandler
-    private void onChat(AsyncChatEvent event) {
+    private void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         if (player.getUniqueId() != target)
             return;
 
         event.setCancelled(true);
-        String message = LegacyComponentSerializer.legacyAmpersand().serialize(event.message());
+        String message = event.getMessage();
         Action result = callback.apply(message);
-        event.message(Component.empty());
+        event.setMessage("");
         if (result != Action.RETRY)
             event.getHandlers().unregister(this);
     }

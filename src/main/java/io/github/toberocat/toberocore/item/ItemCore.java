@@ -1,45 +1,44 @@
 package io.github.toberocat.toberocore.item;
 
-import io.github.toberocat.toberocore.ToberoCore;
-import io.github.toberocat.toberocore.item.property.ItemProperty;
-import io.github.toberocat.toberocore.item.placer.ItemPlacer;
+import io.github.toberocat.toberocore.item.property.*;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public final class ItemCore {
 
-    private static io.github.toberocat.toberocore.ToberoCore ToberoCore;
+    static {
+        new AmountProperty().register();
+        new CommandProperty().register();
+        new EnchantmentsProperty().register();
+        new FlagsProperty().register();
+        new GlowProperty().register();
+        new LeatherArmorColorProperty().register();
+        new LoreProperty().register();
+        new MaterialProperty().register();
+        new NameProperty().register();
+        new PlayerHeadProperty().register();
+    }
+
     private static NamespacedKey tagsKey;
 
     private static final Set<ItemProperty> itemProperties = new HashSet<>();
-    private static final Set<ItemPlacer> itemPlacers = new HashSet<>();
-
-    public static void initialize(@NotNull ToberoCore ToberoCore) {
-        if (ItemCore.ToberoCore != null) {
-            throw new IllegalStateException(ItemCore.class.getSimpleName() + " has already been initialized");
-        }
-
-        ItemCore.ToberoCore = ToberoCore;
-    }
 
     /* Register */
 
     public static void registerItemProperty(@NotNull ItemProperty itemProperty) {
         itemProperties.add(itemProperty);
-    }
-
-    public static void registerItemPlacer(@NotNull ItemPlacer itemPlacer) {
-        itemPlacers.add(itemPlacer);
     }
 
     /* Get */
@@ -100,22 +99,5 @@ public final class ItemCore {
 
     public static @NotNull ItemStack create(@NotNull ConfigurationSection configurationSection) {
         return create(configurationSection, new ItemInfo());
-    }
-
-    /* Place */
-
-    public static void place(@NotNull ItemStack itemStack, @NotNull ConfigurationSection configurationSection, @NotNull Inventory inventory) {
-        for (ItemPlacer itemPlacer : itemPlacers) {
-            itemPlacer.place(itemStack, configurationSection, inventory);
-        }
-    }
-
-    public static void place(@NotNull ConfigurationSection configurationSection, @NotNull ItemInfo itemInfo, @NotNull Inventory inventory) {
-        ItemStack itemStack = create(configurationSection, itemInfo);
-        place(itemStack, configurationSection, inventory);
-    }
-
-    public static void place(@NotNull ConfigurationSection configurationSection, @NotNull Inventory inventory) {
-        place(configurationSection, new ItemInfo(), inventory);
     }
 }

@@ -1,9 +1,5 @@
-package io.github.toberocat.toberocore.item;
+package io.github.toberocat.toberocore.util;
 
-
-import com.destroystokyo.paper.profile.PlayerProfile;
-import com.destroystokyo.paper.profile.ProfileProperty;
-import io.github.toberocat.toberocore.util.StringUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,14 +10,33 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static io.github.toberocat.toberocore.util.StringUtils.format;
 
 public final class ItemUtils {
+
+    public static <T extends ItemMeta> void editMeta(@NotNull ItemStack stack, @NotNull Class<T> clazz, @NotNull Consumer<T> metaConsumer) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null) return;
+        metaConsumer.accept(clazz.cast(meta));
+        stack.setItemMeta(meta);
+    }
+
+    public static void editMeta(@NotNull ItemStack stack, @NotNull Consumer<ItemMeta> metaConsumer) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null) return;
+        metaConsumer.accept(meta);
+        stack.setItemMeta(meta);
+    }
 
     @Deprecated
     public static ItemStack setLore(ItemStack stack, String[] lore) {
@@ -38,7 +53,7 @@ public final class ItemUtils {
         final ItemStack item = new ItemStack(material, 1);
         final ItemMeta meta = item.getItemMeta();
 
-        meta.displayName(Component.text(format(name)));
+        meta.setDisplayName(format(name));
         item.setItemMeta(meta);
 
         return item;
@@ -58,41 +73,32 @@ public final class ItemUtils {
         return item;
     }
 
-    public static @NotNull ItemStack createItem(@NotNull Material material,
-                                                @NotNull String name,
-                                                int amount,
-                                                @NotNull String... lore) {
+    public static @NotNull ItemStack createItem(@NotNull Material material, @NotNull String name, int amount, @NotNull String... lore) {
         ItemStack item = new ItemStack(material, amount);
-        item.editMeta(meta -> {
-            meta.displayName(Component.text(name));
-            meta.lore(Arrays.stream(lore)
-                    .map(ItemUtils::component)
-                    .toList());
+        editMeta(item, meta -> {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.stream(lore).toList());
         });
         return item;
     }
 
     public static @NotNull ItemStack createSkull(OfflinePlayer player, int count, String name, String[] lore) {
         ItemStack item = createItem(Material.PLAYER_HEAD, name, count, lore);
-        item.editMeta(SkullMeta.class, skull -> skull.setOwningPlayer(player));
+        editMeta(item, SkullMeta.class, skull -> skull.setOwningPlayer(player));
         return item;
     }
 
-    public static @NotNull ItemStack createHead(@NotNull String textureId,
-                                                @NotNull String title,
-                                                int amount,
-                                                @NotNull String... lore) {
+    public static @NotNull ItemStack createHead(@NotNull String textureId, @NotNull String title, int amount, @NotNull String... lore) {
         ItemStack head = createItem(Material.PLAYER_HEAD, title, amount, lore);
-        if (!(head.getItemMeta() instanceof SkullMeta headMeta))
-            return head;
+        if (!(head.getItemMeta() instanceof SkullMeta headMeta)) return head;
 
-        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), "");
-        profile.setProperty(new ProfileProperty("textures", textureId));
-        headMeta.setPlayerProfile(profile);
+        PlayerProfile profile = getProfile("https://textures.minecraft.net/texture/" + textureId);
+        headMeta.setOwnerProfile(profile);
 
         head.setItemMeta(headMeta);
         return head;
     }
+
 
     @Deprecated
     public static ItemStack modify(ItemStack stack, String title, String... lore) {
@@ -104,9 +110,7 @@ public final class ItemUtils {
         return item;
     }
 
-    public static @NotNull ItemStack addEnchantment(@NotNull ItemStack stack,
-                                                    @NotNull Enchantment enchantment,
-                                                    int strength) {
+    public static @NotNull ItemStack addEnchantment(@NotNull ItemStack stack, @NotNull Enchantment enchantment, int strength) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return stack;
 
@@ -116,18 +120,11 @@ public final class ItemUtils {
         return stack;
     }
 
-    public static <T, Z> @Nullable Z getPersistent(@Nullable ItemStack item,
-                                                   @NotNull NamespacedKey key,
-                                                   @NotNull PersistentDataType<T, Z> type) {
-        if (item == null)
-            return null;
-
+    public static <T, Z> @Nullable Z getPersistent(@NotNull ItemStack item, @NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type) {
         return item.getItemMeta().getPersistentDataContainer().get(key, type);
     }
 
-    public static <T, Z> boolean hasPersistent(@NotNull ItemStack item,
-                                               @NotNull NamespacedKey key,
-                                               @NotNull PersistentDataType<T, Z> type) {
+    public static <T, Z> boolean hasPersistent(@NotNull ItemStack item, @NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type) {
         return item.getItemMeta().getPersistentDataContainer().has(key, type);
     }
 
@@ -140,5 +137,28 @@ public final class ItemUtils {
 
     private static @NotNull Component component(@NotNull String title) {
         return Component.text(format(title));
+    }
+
+    private static PlayerProfile getProfile(@NotNull String url) {
+        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+        PlayerTextures textures = profile.getTextures();
+        URL urlObject;
+        try {
+            urlObject = new URL(url);
+        } catch (MalformedURLException exception) {
+            try {
+                urlObject = getUrlFromBase64(url);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Invalid URL", exception);
+            }
+        }
+        textures.setSkin(urlObject);
+        profile.setTextures(textures);
+        return profile;
+    }
+
+    private static URL getUrlFromBase64(@NotNull String base64) throws MalformedURLException {
+        String decoded = new String(Base64.getDecoder().decode(base64));
+        return new URL(decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length()));
     }
 }

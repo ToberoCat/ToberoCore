@@ -1,8 +1,7 @@
 package io.github.toberocat.toberocore.command;
 
-import io.github.toberocat.toberocore.util.StringUtils;
 import io.github.toberocat.toberocore.command.exceptions.CommandExceptions;
-import org.bukkit.Bukkit;
+import io.github.toberocat.toberocore.util.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +16,7 @@ import java.util.List;
 public abstract class SubCommand extends Command<SubCommand> {
 
     protected final String label;
+
     public SubCommand(@NotNull String label) {
         super(null, label);
         this.label = label;

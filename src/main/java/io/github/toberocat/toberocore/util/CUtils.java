@@ -38,49 +38,6 @@ public final class CUtils {
         for (Listener listener : listeners) manager.registerEvents(listener, plugin);
     }
 
-    /* Command */
-
-    /**
-     * Registers a command so that it can be used in-game.
-     *
-     * @param command        the command to register
-     * @param fallbackPrefix the fallback prefix to use for the command
-     */
-    public static void registerCommand(@NotNull Command command, @NotNull String fallbackPrefix) {
-        CommandMap commandMap = Bukkit.getServer().getCommandMap();
-        commandMap.register(fallbackPrefix, command);
-    }
-
-    /**
-     * Registers a command so that it can be used in-game.
-     *
-     * @param command the command to register
-     * @param plugin  the plugin that the command is being registered from
-     */
-    public static void registerCommand(@NotNull Command command, @NotNull Plugin plugin) {
-        registerCommand(command, plugin.getName());
-    }
-
-    /**
-     * Unregisters a command so that it can no longer be used in-game.
-     *
-     * @param command the command to unregister
-     */
-    public static void unregisterCommand(@NotNull Command command) {
-        CommandMap commandMap = Bukkit.getCommandMap();
-        Map<String, Command> knownCommands = commandMap.getKnownCommands();
-
-        command.unregister(commandMap);
-
-        for (Entry<String, Command> entry : Map.copyOf(knownCommands).entrySet()) {
-            Command val = entry.getValue();
-
-            if (val.equals(command)) {
-                knownCommands.remove(entry.getKey());
-            }
-        }
-    }
-
     /* Config */
 
     public static @NotNull ConfigurationSection getOrCreateCS(@NotNull ConfigurationSection configurationSection, @NotNull String path) {
@@ -155,19 +112,12 @@ public final class CUtils {
      *
      * @param name the name to use to get the {@link OfflinePlayer}
      * @return the offline player
-     * @deprecated use {@link Bukkit#getOfflinePlayerIfCached(String)}
      */
-    @Deprecated
     public static OfflinePlayer offlinePlayerFromName(@NotNull String name) {
         return StreamUtils.find(Bukkit.getOfflinePlayers(), x -> name.equals(x.getName()));
     }
 
     /* Random */
-
-    @Deprecated
-    public static double randomDouble(double from, double to) {
-        return random(from, to);
-    }
 
     public static int random(int from, int to) {
         return from + RANDOM.nextInt(to - from + 1);
@@ -200,23 +150,6 @@ public final class CUtils {
         } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException | SecurityException e) {
             return null;
         }
-    }
-
-    /* Deprecated */
-
-    @Deprecated
-    public static void registerCommand(@NotNull Command command) {
-        registerCommand(command, command.getName());
-    }
-
-    @Deprecated
-    public static @NotNull String replace(@NotNull String string, @NotNull Map<String, String> placeholders, boolean caseSensitive) {
-        return StringUtils.replace(string, placeholders, caseSensitive);
-    }
-
-    @Deprecated
-    public static @NotNull String replace(@NotNull String string, @NotNull Map<String, String> placeholders) {
-        return StringUtils.replace(string, placeholders);
     }
 
     public static <K, V> HashMap<K, V> sortMap(HashMap<K, V> map, Comparator<Entry<K, V>> comparable) {

@@ -1,15 +1,10 @@
-package io.github.toberocat.toberocore.item;
+package io.github.toberocat.toberocore.util;
 
 import io.github.toberocat.toberocore.ToberoCore;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -49,51 +44,8 @@ public class ItemBuilder {
         Bukkit.getServer().getPluginManager().registerEvents(events, ToberoCore.getPlugin());
     }
 
-    public static @NotNull ItemBuilder blockSelectionWand(@NotNull Player player,
-                                                          @NotNull Consumer<Block> callback) {
-        player.sendMessage(Component.text("Select the selected block by pressing")
-                        .color(NamedTextColor.DARK_GRAY)
-                .append(Component.space())
-                .append(Component.keybind().keybind("key.drop")));
-        var ref = new Object() {
-            Block selected;
-        };
-        return new ItemBuilder()
-                .amount(1)
-                .material(Material.STICK)
-                .enchant(Enchantment.LOYALTY, 1)
-                .title("§eBlock selection wand")
-                .click(event -> {
-                    event.setCancelled(true);
-                    ref.selected = event.getClickedBlock();
-                    Location location = ref.selected == null ? null : ref.selected.getLocation();
-                    if (location == null) {
-                        player.sendMessage("§cInvalid block position");
-                        return;
-                    }
-
-                    player.sendMessage(String.format("§7Block chosen at §e%d %d %d",
-                            location.getBlockX(), location.getBlockY(), location.getBlockZ()));
-                })
-                .drop(event -> {
-                    if (ref.selected == null) {
-                        event.setCancelled(true);
-                        player.sendMessage("§cInvalid block position");
-                        return;
-                    }
-
-                    player.getInventory().remove(event.getItemDrop().getItemStack());
-                    event.getItemDrop().remove();
-                    player.sendMessage(String.format("§eSuccessfully choose block at §e%d %d %d",
-                            ref.selected.getLocation().getBlockX(),
-                            ref.selected.getLocation().getBlockY(),
-                            ref.selected.getLocation().getBlockZ()));
-                    callback.accept(ref.selected);
-                });
-    }
-
     public @NotNull ItemBuilder title(@NotNull String title) {
-        meta.displayName(component(title));
+        meta.setDisplayName(component(title));
         return this;
     }
 
@@ -108,10 +60,7 @@ public class ItemBuilder {
     }
 
     public @NotNull ItemBuilder lore(@NotNull String... lore) {
-        meta.lore(Arrays
-                .stream(lore)
-                .map(this::component)
-                .toList());
+        meta.setLore(Arrays.stream(lore).map(this::component).toList());
         return this;
     }
 
@@ -130,9 +79,7 @@ public class ItemBuilder {
         return this;
     }
 
-    public @NotNull <T, Z> ItemBuilder persistent(@NotNull NamespacedKey key,
-                                                  @NotNull PersistentDataType<T, Z> type,
-                                                  Z item) {
+    public @NotNull <T, Z> ItemBuilder persistent(@NotNull NamespacedKey key, @NotNull PersistentDataType<T, Z> type, Z item) {
         meta.getPersistentDataContainer().set(key, type, item);
         return this;
     }
@@ -143,8 +90,7 @@ public class ItemBuilder {
     }
 
     public @NotNull <T extends ItemMeta> ItemBuilder editMeta(@NotNull Class<T> clazz, @NotNull Consumer<T> callback) {
-        if (meta.getClass() == clazz)
-            callback.accept(clazz.cast(meta));
+        if (meta.getClass() == clazz) callback.accept(clazz.cast(meta));
         return this;
     }
 
@@ -154,8 +100,8 @@ public class ItemBuilder {
         return item;
     }
 
-    private @NotNull Component component(@NotNull String title) {
-        return Component.text(format(title));
+    private @NotNull String component(@NotNull String title) {
+        return format(title);
     }
 
     private class ItemEvents implements Listener {

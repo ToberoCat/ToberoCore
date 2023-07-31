@@ -30,8 +30,7 @@ public abstract class Command<T extends Command<T>> {
 
     //<editor-fold desc="Children Handling">
     public void addChild(@NotNull T command) {
-        if (command.parent != null)
-            throw new CommandHasParentException(command.label);
+        if (command.parent != null) throw new CommandHasParentException(command.label);
 
         command.parent = this;
         command.permission = permission + "." + command.label;
