@@ -89,6 +89,9 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                                                 @NotNull org.bukkit.command.Command command,
                                                 @NotNull String label,
                                                 @NotNull String[] args) {
+        if (permission != null && !sender.hasPermission(permission))
+            return null;
+
         List<String> unsorted = getTab(sender, args);
         if (unsorted == null) return null;
 

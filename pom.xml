@@ -18,7 +18,7 @@
         <maven.compiler.target>16</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <server.location>H:\Development\Minecraft\Spigot\Server1.18\plugins</server.location>
+        <server.location>H:\Development\Minecraft\Spigot\Server1.19\plugins</server.location>
     </properties>
 
     <build>
