@@ -1,5 +1,6 @@
 package io.github.toberocat.toberocore.task;
 
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -12,11 +13,9 @@ public class SharedTask {
     private static final Map<String, Runnable> tasks = new HashMap<>();
     private static final List<String> runningTasks = new ArrayList<>();
 
-    public static <R> @NotNull TaskChain<R> sharedTask(@NotNull String taskId,
-                                                       @NotNull Supplier<R> supplier) {
-        TaskChain<R> chain = TaskChain.asyncFirst(() -> {
-            if (runningTasks.contains(taskId))
-                new Promise<>(resolve -> tasks.put(taskId, () -> resolve.accept(null)));
+    public static <R> @NotNull TaskChain<R> sharedTask(@NotNull JavaPlugin plugin, @NotNull String taskId, @NotNull Supplier<R> supplier) {
+        TaskChain<R> chain = TaskChain.asyncFirst(plugin, () -> {
+            if (runningTasks.contains(taskId)) new Promise<>(resolve -> tasks.put(taskId, () -> resolve.accept(null)));
 
             runningTasks.add(taskId);
             return supplier.get();

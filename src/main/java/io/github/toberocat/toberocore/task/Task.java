@@ -1,6 +1,6 @@
 package io.github.toberocat.toberocore.task;
 
-import io.github.toberocat.toberocore.ToberoCore;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Task<R> implements Runnable {
 
@@ -49,8 +50,8 @@ public class Task<R> implements Runnable {
         return task;
     }
 
-    public static void dispose() {
-        ToberoCore.getPlugin().getLogger().log(Level.INFO, "Waiting for all tasks to finish");
+    public static void dispose(Logger logger) {
+        logger.log(Level.INFO, "Waiting for all tasks to finish");
         threadPool.shutdown();
 
         for (int i = 0; i < 100; i++) {
@@ -60,7 +61,7 @@ public class Task<R> implements Runnable {
             } catch (InterruptedException ignored) {
             }
         }
-        ToberoCore.getPlugin().getLogger().log(Level.INFO, "Shutdown continued");
+        logger.log(Level.INFO, "Shutdown continued");
     }
 
     public @NotNull Task<R> start() {
@@ -79,8 +80,8 @@ public class Task<R> implements Runnable {
             this.then.forEach(x -> x.accept(result));
     }
 
-    public @NotNull TaskChain<R> chain() {
-        return new TaskChain<>(this, null);
+    public @NotNull TaskChain<R> chain(@NotNull JavaPlugin plugin) {
+        return new TaskChain<>(plugin, this, null);
     }
 
     public @NotNull Optional<R> await() {

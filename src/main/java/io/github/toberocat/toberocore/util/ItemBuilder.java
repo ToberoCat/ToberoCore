@@ -1,6 +1,5 @@
 package io.github.toberocat.toberocore.util;
 
-import io.github.toberocat.toberocore.ToberoCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -12,6 +11,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -26,7 +26,7 @@ import static io.github.toberocat.toberocore.util.StringUtils.format;
  */
 @SuppressWarnings("unused")
 public class ItemBuilder {
-    private static final NamespacedKey ID_KEY = new NamespacedKey(ToberoCore.getPlugin(), "item-id");
+    private static final NamespacedKey ID_KEY = new NamespacedKey("tobero-core", "item-id");
     private final ItemEvents events;
     private final ItemStack item;
     private final ItemMeta meta;
@@ -36,12 +36,11 @@ public class ItemBuilder {
         this(new ItemStack(Material.DIRT, 1));
     }
 
-    public ItemBuilder(ItemStack item) {
+    public ItemBuilder(@NotNull ItemStack item) {
         this.item = item;
         this.meta = item.getItemMeta();
         this.events = new ItemEvents();
         this.id = UUID.randomUUID();
-        Bukkit.getServer().getPluginManager().registerEvents(events, ToberoCore.getPlugin());
     }
 
     public @NotNull ItemBuilder title(@NotNull String title) {
@@ -94,9 +93,11 @@ public class ItemBuilder {
         return this;
     }
 
-    public @NotNull ItemStack create() {
+    public @NotNull ItemStack create(@NotNull JavaPlugin plugin) {
         persistent(ID_KEY, PersistentDataType.STRING, id.toString());
         item.setItemMeta(meta);
+
+        Bukkit.getServer().getPluginManager().registerEvents(events, plugin);
         return item;
     }
 

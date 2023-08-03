@@ -23,6 +23,6 @@ public final class ToberoCore extends JavaPlugin {
         AbstractIndividuals.cleanup();
         CurrencyCore.dispose();
         SimpleBar.cleanup();
-        Task.dispose(); // Make sure all threads close safely
+        Task.dispose(getLogger()); // Make sure all threads close safely
     }
 }

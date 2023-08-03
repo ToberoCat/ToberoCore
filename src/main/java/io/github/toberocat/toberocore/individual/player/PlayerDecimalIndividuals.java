@@ -22,6 +22,7 @@ public class PlayerDecimalIndividuals extends PlayerIndividuals<BigDecimal> {
     private final Logger logger;
 
     public PlayerDecimalIndividuals(@NotNull File directory, @NotNull JavaPlugin javaPlugin) {
+        super(javaPlugin);
         this.directory = directory;
         this.logger = javaPlugin.getLogger();
 

@@ -5,12 +5,11 @@ import io.github.toberocat.toberocore.util.MathUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import static io.github.toberocat.toberocore.util.MathUtils.clamp;
-import static io.github.toberocat.toberocore.util.MathUtils.lerp;
 
 public class AnimatedBossBar extends SimpleBar {
 
@@ -19,17 +18,18 @@ public class AnimatedBossBar extends SimpleBar {
     public static final int ANIMATION_MS_FADE = 700;
     public static final double EPS = 0.001;
     private final Ease ease;
+    private final @NotNull JavaPlugin plugin;
     private int taskId = -1;
     private Runnable finishCallback;
 
-    public AnimatedBossBar(String title, BarColor color, double min, double max) {
-        super(title, color, min, max);
-        this.ease = time -> time;
+    public AnimatedBossBar(@NotNull JavaPlugin plugin, String title, BarColor color, double min, double max) {
+        this(plugin, title, color, min, max, time -> time);
     }
 
-    public AnimatedBossBar(String title, BarColor color, double min, double max, Ease ease) {
+    public AnimatedBossBar(@NotNull JavaPlugin plugin, String title, BarColor color, double min, double max, Ease ease) {
         super(title, color, min, max);
         this.ease = ease;
+        this.plugin = plugin;
     }
 
     public void fadeInstantly(double value, Player... players) {
@@ -49,15 +49,10 @@ public class AnimatedBossBar extends SimpleBar {
 
         for (Player player : players) addPlayer(player);
 
-        finishCallback = () -> Bukkit
-                .getScheduler()
-                .runTaskLater(ToberoCore.getPlugin(), () -> {
-                    for (Player player : players) removePlayer(player);
-                }, ANIMATION_MS_FADE);
-        Bukkit.getScheduler()
-                .runTaskLater(ToberoCore.getPlugin(),
-                        () -> setValueAnimated(value),
-                        ANIMATION_MS_FADE);
+        finishCallback = () -> Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player player : players) removePlayer(player);
+        }, ANIMATION_MS_FADE);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> setValueAnimated(value), ANIMATION_MS_FADE);
     }
 
     public void fade(double value, List<Player> players) {
@@ -65,15 +60,10 @@ public class AnimatedBossBar extends SimpleBar {
 
         for (Player player : players) addPlayer(player);
 
-        finishCallback = () -> Bukkit
-                .getScheduler()
-                .runTaskLater(ToberoCore.getPlugin(), () -> {
-                    for (Player player : players) removePlayer(player);
-                }, ANIMATION_MS_FADE);
-        Bukkit.getScheduler()
-                .runTaskLater(ToberoCore.getPlugin(),
-                        () -> setValueAnimated(value),
-                        ANIMATION_MS_FADE);
+        finishCallback = () -> Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player player : players) removePlayer(player);
+        }, ANIMATION_MS_FADE);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> setValueAnimated(value), ANIMATION_MS_FADE);
     }
 
     public Ease getEase() {
