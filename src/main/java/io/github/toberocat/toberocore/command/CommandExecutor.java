@@ -11,37 +11,36 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 
 public class CommandExecutor extends Command implements TabExecutor {
+    private @NotNull BiConsumer<CommandSender, CommandException> sendException;
+
     private CommandExecutor(@NotNull PluginCommand command) {
         super(command.getLabel(), command.getLabel());
 
         command.setExecutor(this);
         command.setTabCompleter(this);
+        sendException = this::sendException;
     }
 
     public static @NotNull CommandExecutor createExecutor(@NotNull String command) {
         PluginCommand pluginCommand = Bukkit.getPluginCommand(command);
-        if (pluginCommand == null)
-            throw new RuntimeException("Plugin Command " + command + " is null");
+        if (pluginCommand == null) throw new RuntimeException("Plugin Command " + command + " is null");
 
         return new CommandExecutor(pluginCommand);
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender,
-                             @NotNull org.bukkit.command.Command command,
-                             @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String[] args) {
         SubCommand sub = args.length == 0 ? null : children.get(args[0]);
-        if (sub == null)
-            return false;
+        if (sub == null) return false;
 
         try {
             return sub.routeCall(sender, args);
         } catch (CommandException e) {
-            sendException(sender, e);
+            sendException.accept(sender, e);
             return false;
         }
     }
@@ -51,19 +50,15 @@ public class CommandExecutor extends Command implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
-                                                @NotNull org.bukkit.command.Command command,
-                                                @NotNull String label,
-                                                @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String[] args) {
         List<String> unsorted = null;
         try {
             unsorted = getTab(sender, args);
         } catch (CommandException e) {
-            sendException(sender, e);
+            sendException.accept(sender, e);
         }
 
-        if (unsorted == null)
-            return Collections.emptyList();
+        if (unsorted == null) return Collections.emptyList();
 
         List<String> results = new ArrayList<>();
         for (String arg : args) {
@@ -77,9 +72,7 @@ public class CommandExecutor extends Command implements TabExecutor {
         return results;
     }
 
-    private @Nullable List<String> getTab(@NotNull CommandSender sender,
-                                          @NotNull String[] args)
-            throws CommandException {
+    private @Nullable List<String> getTab(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
         if (args.length <= 1) return childrenTabList(sender, args);
 
         SubCommand sub = children.get(args[0]);
@@ -88,8 +81,11 @@ public class CommandExecutor extends Command implements TabExecutor {
     }
 
     @Override
-    public boolean showInTab(@NotNull CommandSender sender,
-                             @NotNull String[] args) {
+    public boolean showInTab(@NotNull CommandSender sender, @NotNull String[] args) {
         return true;
+    }
+
+    public void setSendException(@NotNull BiConsumer<CommandSender, CommandException> sendException) {
+        this.sendException = sendException;
     }
 }
