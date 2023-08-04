@@ -1,90 +1,52 @@
 package io.github.toberocat.toberocore.command;
 
-import io.github.toberocat.toberocore.command.exceptions.CommandExceptions;
-import io.github.toberocat.toberocore.util.StringUtils;
+import io.github.toberocat.toberocore.command.exceptions.CommandException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 
-/**
- * Created: 02/11/2022
- *
- * @author Tobias Madlberger (Tobias)
- */
-public class CommandExecutor extends Command<SubCommand> implements TabExecutor {
-
-    private static final Map<String, CommandExecutor> registeredExecutors = new HashMap<>();
-    private NothingAction action;
-
-    private Function<String[], List<String>> tab;
-
-    private CommandExecutor(@NotNull PluginCommand command, @NotNull String prefix) {
+public class CommandExecutor extends Command implements TabExecutor {
+    private CommandExecutor(@NotNull PluginCommand command) {
         super(command.getLabel(), command.getLabel());
-        this.prefix = "";
 
         command.setExecutor(this);
         command.setTabCompleter(this);
-
-        registeredExecutors.put(label, this);
     }
 
-    //<editor-fold desc="Accessing Executors">
-    public static @Nullable CommandExecutor getExecutor(@NotNull String command) {
-        return registeredExecutors.get(command);
-    }
-
-    public static @NotNull CommandExecutor createExecutor(@NotNull JavaPlugin plugin,
-                                                          @NotNull String command) {
-        return createExecutor(String.format("§8[§e%s§8]§7", plugin.getName()), command);
-    }
-
-    public static @NotNull CommandExecutor createExecutor(@NotNull FileConfiguration config,
-                                                          @NotNull String command) {
-        return createExecutor(
-                config.getString("prefix", "§8[§eSpivakNetwork§8]§7"), command);
-    }
-
-    public static @NotNull CommandExecutor createExecutor(@NotNull String prefix,
-                                                          @NotNull String command) {
-        CommandExecutor executor = registeredExecutors.get(command);
-        if (executor != null) return executor;
-
+    public static @NotNull CommandExecutor createExecutor(@NotNull String command) {
         PluginCommand pluginCommand = Bukkit.getPluginCommand(command);
         if (pluginCommand == null)
             throw new RuntimeException("Plugin Command " + command + " is null");
 
-        return new CommandExecutor(pluginCommand, prefix);
+        return new CommandExecutor(pluginCommand);
     }
-    //</editor-fold>
 
-    //<editor-fold desc="Command Handling">
     @Override
     public boolean onCommand(@NotNull CommandSender sender,
                              @NotNull org.bukkit.command.Command command,
                              @NotNull String label,
                              @NotNull String[] args) {
         SubCommand sub = args.length == 0 ? null : children.get(args[0]);
+        if (sub == null)
+            return false;
 
         try {
-            return sub != null
-                    ? sub.routeCall(sender, args)
-                    : action != null && action.execute(sender, args);
-        } catch (CommandExceptions e) {
-            sender.sendMessage(prefix + "§c" + StringUtils.format(e.getMessageId()));
+            return sub.routeCall(sender, args);
+        } catch (CommandException e) {
+            sendException(sender, e);
             return false;
         }
+    }
+
+    private void sendException(@NotNull CommandSender sender, @NotNull CommandException e) {
     }
 
     @Override
@@ -92,11 +54,15 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
                                                 @NotNull org.bukkit.command.Command command,
                                                 @NotNull String label,
                                                 @NotNull String[] args) {
-        if (permission != null && !sender.hasPermission(permission))
-            return null;
+        List<String> unsorted = null;
+        try {
+            unsorted = getTab(sender, args);
+        } catch (CommandException e) {
+            sendException(sender, e);
+        }
 
-        List<String> unsorted = getTab(sender, args);
-        if (unsorted == null) return null;
+        if (unsorted == null)
+            return Collections.emptyList();
 
         List<String> results = new ArrayList<>();
         for (String arg : args) {
@@ -110,37 +76,19 @@ public class CommandExecutor extends Command<SubCommand> implements TabExecutor 
         return results;
     }
 
-    private @Nullable List<String> getTab(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (args.length <= 1) return tab == null ? tabComplete : tab.apply(args);
+    private @Nullable List<String> getTab(@NotNull CommandSender sender,
+                                          @NotNull String[] args)
+            throws CommandException {
+        if (args.length <= 1) return childrenTabList(sender, args);
 
         SubCommand sub = children.get(args[0]);
 
         return sub == null ? null : sub.routeTab(sender, args);
     }
-    //</editor-fold>
 
-    //<editor-fold desc="Getters and Setters">
-
-    public CommandExecutor setNothingAction(@NotNull Function<CommandSender, Boolean> action) {
-        this.action = (sender, args) -> action.apply(sender);
-        return this;
-    }
-
-    public CommandExecutor setNothingAction(@NotNull NothingAction action) {
-        this.action = action;
-        return this;
-    }
-
-    public CommandExecutor setTab(Function<String[], List<String>> tab) {
-        this.tab = tab;
-        return this;
-    }
-
-    //</editor-fold>
-
-    @FunctionalInterface
-    public interface NothingAction {
-        boolean execute(@NotNull CommandSender sender, @NotNull String[] args)
-                throws CommandExceptions;
+    @Override
+    public boolean showInTab(@NotNull CommandSender sender,
+                             @NotNull String[] args) {
+        return true;
     }
 }
