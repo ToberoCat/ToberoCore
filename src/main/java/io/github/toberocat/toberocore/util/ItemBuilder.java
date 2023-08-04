@@ -97,7 +97,7 @@ public class ItemBuilder {
         persistent(ID_KEY, PersistentDataType.STRING, id.toString());
         item.setItemMeta(meta);
 
-        Bukkit.getServer().getPluginManager().registerEvents(events, plugin);
+        if (events.notEmpty()) Bukkit.getServer().getPluginManager().registerEvents(events, plugin);
         return item;
     }
 
@@ -116,6 +116,8 @@ public class ItemBuilder {
 
         @EventHandler
         private void click(@NotNull PlayerInteractEvent event) {
+            if (event.getItem() == null) return;
+
             if (!Objects.equals(ItemUtils.getPersistent(event.getItem(), ID_KEY, PersistentDataType.STRING), id.toString()))
                 return;
             click.forEach(x -> x.accept(event));
@@ -126,6 +128,10 @@ public class ItemBuilder {
             if (!Objects.equals(ItemUtils.getPersistent(event.getItemDrop().getItemStack(), ID_KEY, PersistentDataType.STRING), id.toString()))
                 return;
             drop.forEach(x -> x.accept(event));
+        }
+
+        public boolean notEmpty() {
+            return !(click.isEmpty() && drop.isEmpty());
         }
     }
 }
