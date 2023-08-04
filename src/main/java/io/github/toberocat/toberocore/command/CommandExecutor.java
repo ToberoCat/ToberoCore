@@ -47,6 +47,7 @@ public class CommandExecutor extends Command implements TabExecutor {
     }
 
     private void sendException(@NotNull CommandSender sender, @NotNull CommandException e) {
+        sender.sendMessage(e.getMessage());
     }
 
     @Override

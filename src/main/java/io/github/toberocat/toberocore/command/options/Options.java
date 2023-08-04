@@ -5,7 +5,6 @@ import io.github.toberocat.toberocore.util.CooldownManager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,8 @@ public class Options {
     static {
         addFactory((plugin, config, options) -> {
             CooldownManager cooldownManager = CooldownManager.createManager(Optional.ofNullable(config.getString("cooldown-unit")).map(TimeUnit::valueOf).orElse(TimeUnit.SECONDS), config.getInt("cooldown", 0));
-            options.cmdOpt(new CooldownOption(plugin, cooldownManager)).tabOpt(new CooldownTabOption(cooldownManager, config.getBoolean("cooldown-hide", false)));
+            options.cmdOpt(new CooldownOption(plugin, cooldownManager))
+                    .tabOpt(new CooldownTabOption(cooldownManager, config.getBoolean("cooldown-hide", false)));
         });
     }
 
@@ -28,14 +28,17 @@ public class Options {
     }
 
     public static @NotNull Options getFromConfig(@NotNull JavaPlugin plugin, @NotNull String path) {
-        return getFromConfig(plugin, path, null);
+        return getFromConfig(plugin, path, ((options, configurationSection) -> {
+        }));
     }
 
-    public static @NotNull Options getFromConfig(@NotNull JavaPlugin plugin, @NotNull String path, @Nullable BiConsumer<Options, ConfigurationSection> loadExtra) {
+    public static @NotNull Options getFromConfig(@NotNull JavaPlugin plugin,
+                                                 @NotNull String path,
+                                                 @NotNull BiConsumer<Options, ConfigurationSection> loadExtra) {
         Options options = new Options();
         ConfigurationSection configFile = SubCommand.getConfig(plugin, path);
         CONFIG_OPTION_FACTORIES.forEach(x -> x.create(plugin, configFile, options));
-        if (loadExtra != null) loadExtra.accept(options, configFile);
+        loadExtra.accept(options, configFile);
         return options;
     }
 

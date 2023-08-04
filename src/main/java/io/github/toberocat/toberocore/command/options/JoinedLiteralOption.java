@@ -16,7 +16,7 @@ public class JoinedLiteralOption implements Option {
     }
 
     @Override
-    public @NotNull String[] execute(CommandSender sender, @NotNull String[] args) throws CommandException {
+    public @NotNull String[] execute(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
         int maxJoinLength = maxLiteralLength > 0 ? Math.min(args.length, maxLiteralLength) : args.length;
 
         StringBuilder builder = new StringBuilder();

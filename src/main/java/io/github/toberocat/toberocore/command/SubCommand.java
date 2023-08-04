@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public abstract class SubCommand extends Command {
 
     public boolean routeCall(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
         if (!sender.hasPermission(getPermission()))
-            throw new CommandException("exceptions.not-enough-permissions", new PlaceholderBuilder<>().placeholder("permission", getPermission()).getPlaceholders());
+            throw new CommandException("base.exceptions.not-enough-permissions", new PlaceholderBuilder<>().placeholder("permission", getPermission()).getPlaceholders());
         if (args.length == 0) return handleWithOptions(sender, args);
 
 
