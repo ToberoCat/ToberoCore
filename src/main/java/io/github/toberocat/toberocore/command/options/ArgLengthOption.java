@@ -28,7 +28,7 @@ public class ArgLengthOption implements Option {
             throws CommandException {
         if (args.length != length && !antiSpam.contains(sender.getName())) {
             addToSent(sender);
-            throw new CommandException("base.exceptions.not-enough-arguments", new PlaceholderBuilder<>()
+            throw new CommandException("base.exceptions.invalid-argument-length", new PlaceholderBuilder<>()
                     .placeholder("provided", args.length)
                     .placeholder("required", length)
                     .getPlaceholders());
