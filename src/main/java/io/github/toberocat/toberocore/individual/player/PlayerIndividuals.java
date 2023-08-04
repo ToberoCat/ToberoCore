@@ -17,10 +17,9 @@ public abstract class PlayerIndividuals<V> extends AbstractIndividuals<UUID, V> 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-
     @EventHandler
     private void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        load(e.getPlayer().getUniqueId());
+        read(e.getPlayer().getUniqueId());
     }
 
     @EventHandler

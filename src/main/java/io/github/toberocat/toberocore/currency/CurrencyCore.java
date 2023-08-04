@@ -1,6 +1,7 @@
 package io.github.toberocat.toberocore.currency;
 
 import io.github.toberocat.toberocore.currency.provided.LocalCurrency;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,14 +24,9 @@ public final class CurrencyCore {
         return registeredCurrencies.get(id);
     }
 
-    public static @NotNull Currency createCurrency(@NotNull String id) {
-        Currency currency = new LocalCurrency(id);
+    public static @NotNull Currency createCurrency(@NotNull JavaPlugin plugin, @NotNull String id) {
+        Currency currency = new LocalCurrency(plugin, id);
         registerCurrency(id, currency);
         return currency;
-    }
-
-    public static void dispose() {
-        registeredCurrencies.values().forEach(Currency::dispose);
-        registeredCurrencies.clear();
     }
 }

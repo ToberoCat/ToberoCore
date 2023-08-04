@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public final class ActionCore {
+    private static final Set<Action> actions = new HashSet<>();
 
     static {
         new AddExpAction().register();
@@ -25,8 +26,6 @@ public final class ActionCore {
         new PlayerCommandAction().register();
         new TitleAction().register();
     }
-
-    private static final Set<Action> actions = new HashSet<>();
 
     public static void register(@NotNull Action action) {
         actions.add(action);
@@ -45,9 +44,7 @@ public final class ActionCore {
      * @param commandSender the sender executing
      * @return if the action was found or not
      */
-    public static boolean run(@NotNull String string,
-                              @NotNull CommandSender commandSender,
-                              @NotNull Set<Action> localActions) {
+    public static boolean run(@NotNull String string, @NotNull CommandSender commandSender, @NotNull Set<Action> localActions) {
         /* Args */
 
         String[] argsWithLabel = string.split("\\s+");

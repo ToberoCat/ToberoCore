@@ -3,50 +3,22 @@ package io.github.toberocat.toberocore.individual;
 import io.github.toberocat.toberocore.task.Task;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractIndividuals<K, V> {
 
-    private static final List<AbstractIndividuals<?, ?>> instances = new ArrayList<>();
-
     private final Map<K, V> loaded = new HashMap<>();
     private final Map<K, Task<V>> computing = new HashMap<>();
-    private final Set<K> unload = new HashSet<>();
 
-    public static void cleanup() {
-        instances.forEach(AbstractIndividuals::dispose);
-    }
+    protected abstract @NotNull Task<V> read(@NotNull K k);
 
-    public AbstractIndividuals() {
-        instances.add(this);
-    }
-
-    protected abstract @NotNull Task<V> load(@NotNull K k);
-
-    protected abstract @NotNull Task<?> unsafeUnload(@NotNull K k);
+    protected abstract void write(@NotNull K k);
 
     protected @NotNull V remove(@NotNull K k) {
         synchronized (loaded) {
             return loaded.remove(k);
         }
-    }
-
-    public final void unload(@NotNull K k) {
-        synchronized (computing) {
-            if (computing.containsKey(k))
-                return;
-        }
-
-        synchronized (unload) {
-            unload.add(k);
-        }
-
-        Task<?> task = unsafeUnload(k);
-        task.then(r -> {
-            synchronized (unload) {
-                unload.remove(k);
-            }
-        });
     }
 
     /**
@@ -67,13 +39,8 @@ public abstract class AbstractIndividuals<K, V> {
                 return Task.returnItem(loaded.get(k));
         }
 
-        synchronized (unload) {
-            if (unload.contains(k))
-                throw new FileIsSavingRuntimeException(k);
-        }
-
         synchronized (computing) {
-            Task<V> task = load(k);
+            Task<V> task = read(k);
             computing.put(k, task);
 
             addComputationSafety(k, task);
@@ -81,16 +48,16 @@ public abstract class AbstractIndividuals<K, V> {
         }
     }
 
-    public final void set(@NotNull K k, @NotNull V v) {
+    public final void unload(@NotNull K k) {
         synchronized (loaded) {
-            loaded.put(k, v);
+            loaded.remove(k);
         }
     }
 
-    public final void dispose() {
+    public final void set(@NotNull K k, @NotNull V v) {
         synchronized (loaded) {
-            for (K k : new HashSet<>(loaded.keySet()))
-                unsafeUnload(k);
+            loaded.put(k, v);
+            write(k);
         }
     }
 

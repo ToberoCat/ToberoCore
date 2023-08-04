@@ -1,10 +1,10 @@
 package io.github.toberocat.toberocore.currency.provided;
 
-import io.github.toberocat.toberocore.ToberoCore;
 import io.github.toberocat.toberocore.currency.Currency;
 import io.github.toberocat.toberocore.individual.player.PlayerDecimalIndividuals;
 import io.github.toberocat.toberocore.task.Task;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -17,8 +17,7 @@ public class LocalCurrency implements Currency {
 
     private final PlayerDecimalIndividuals playerDecimalIndividuals;
 
-    public LocalCurrency(@NotNull String currencyId) {
-        ToberoCore plugin = ToberoCore.getPlugin(ToberoCore.class);
+    public LocalCurrency(@NotNull JavaPlugin plugin, @NotNull String currencyId) {
         File directory = new File(plugin.getDataFolder(), "Currencies/" + currencyId);
         playerDecimalIndividuals = new PlayerDecimalIndividuals(directory, plugin);
     }

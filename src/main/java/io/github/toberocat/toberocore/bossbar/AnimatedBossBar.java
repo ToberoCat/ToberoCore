@@ -1,6 +1,5 @@
 package io.github.toberocat.toberocore.bossbar;
 
-import io.github.toberocat.toberocore.ToberoCore;
 import io.github.toberocat.toberocore.util.MathUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -97,7 +96,7 @@ public class AnimatedBossBar extends SimpleBar {
                     cancel();
                 }
             }
-        }.runTaskTimer(ToberoCore.getPlugin(ToberoCore.class), 0, ANIMATION_TIME).getTaskId();
+        }.runTaskTimer(plugin, 0, ANIMATION_TIME).getTaskId();
     }
 
     private void animateRising(double value) {
@@ -120,6 +119,6 @@ public class AnimatedBossBar extends SimpleBar {
                     cancel();
                 }
             }
-        }.runTaskTimer(ToberoCore.getPlugin(ToberoCore.class), 0, ANIMATION_TIME).getTaskId();
+        }.runTaskTimer(plugin, 0, ANIMATION_TIME).getTaskId();
     }
 }

@@ -17,6 +17,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public final class ItemCore {
+    private static NamespacedKey tagsKey;
+
+    private static final Set<ItemProperty> itemProperties = new HashSet<>();
 
     static {
         new AmountProperty().register();
@@ -31,9 +34,6 @@ public final class ItemCore {
         new PlayerHeadProperty().register();
     }
 
-    private static NamespacedKey tagsKey;
-
-    private static final Set<ItemProperty> itemProperties = new HashSet<>();
 
     /* Register */
 

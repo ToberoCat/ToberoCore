@@ -37,7 +37,7 @@ public class PlayerDecimalIndividuals extends PlayerIndividuals<BigDecimal> {
 
 
     @Override
-    protected @NotNull Task<BigDecimal> load(@NotNull UUID uuid) {
+    protected @NotNull Task<BigDecimal> read(@NotNull UUID uuid) {
         return new Task<>(() -> {
             File file = file(uuid);
 
@@ -59,13 +59,12 @@ public class PlayerDecimalIndividuals extends PlayerIndividuals<BigDecimal> {
         });
     }
 
-    @NotNull
     @Override
-    protected Task<?> unsafeUnload(@NotNull UUID uuid) {
+    protected void write(@NotNull UUID uuid) {
         BigDecimal bigDecimal = remove(uuid);
         File file = file(uuid);
 
-        return new Task<>(() -> {
+        new Task<>(() -> {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(bigDecimal.toPlainString());
             } catch (IOException e) {

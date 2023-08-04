@@ -60,11 +60,4 @@ public interface Currency {
     default boolean has(@NotNull OfflinePlayer offlinePlayer, double amount) {
         return has(offlinePlayer, BigDecimal.valueOf(amount));
     }
-
-    /**
-     * This should get called when the entire handler should clear all allocated memory and save everything safely.
-     */
-    default void dispose() {
-
-    }
 }

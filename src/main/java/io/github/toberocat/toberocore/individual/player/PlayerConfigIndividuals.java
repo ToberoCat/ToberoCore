@@ -27,16 +27,16 @@ public class PlayerConfigIndividuals extends AbstractIndividuals<UUID, YamlConfi
     }
 
     @Override
-    protected @NotNull Task<YamlConfiguration> load(@NotNull UUID uuid) {
+    protected @NotNull Task<YamlConfiguration> read(@NotNull UUID uuid) {
         return new Task<>(() -> new YamlLoader(file(uuid), javaPlugin).load().yamlConfiguration());
     }
 
     @Override
-    protected @NotNull Task<?> unsafeUnload(@NotNull UUID uuid) {
+    protected void write(@NotNull UUID uuid) {
         YamlConfiguration yamlConfiguration = remove(uuid);
         File file = file(uuid);
 
-        return new Task<>(() -> {
+        new Task<>(() -> {
             try {
                 yamlConfiguration.save(file);
             } catch (IOException e) {
