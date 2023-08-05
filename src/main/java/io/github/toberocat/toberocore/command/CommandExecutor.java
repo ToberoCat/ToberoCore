@@ -60,16 +60,34 @@ public class CommandExecutor extends Command implements TabExecutor {
 
         if (unsorted == null) return Collections.emptyList();
 
+        List<List<String>> unsortedSplit = new ArrayList<>();
+        for (String item : unsorted) {
+            unsortedSplit.add(List.of(item.split(" ")));
+        }
+
         List<String> results = new ArrayList<>();
         for (String arg : args) {
-            for (String a : unsorted) {
-                if (a.toLowerCase().startsWith(arg.toLowerCase())) {
-                    results.add(a);
+            for (List<String> a : unsortedSplit) {
+                for (int index = 0; index < a.size(); index++) {
+                    String s = a.get(index);
+                    if (arg.equalsIgnoreCase(s)) {
+                        results.add(String.join(" ", a.subList(index + 1, a.size())));
+                    }
                 }
             }
         }
 
-        return results;
+        List<String> unsortedResults = results.isEmpty() ? unsorted : results.stream().filter(s -> !s.isBlank()).toList();
+        List<String> sortedResults = new ArrayList<>();
+        for (String arg : args) {
+            for (String a : unsortedResults) {
+                if (a.toLowerCase().startsWith(arg.toLowerCase())) {
+                    sortedResults.add(a);
+                }
+            }
+        }
+
+        return sortedResults;
     }
 
     private @Nullable List<String> getTab(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
