@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -35,7 +36,11 @@ public class CommandExecutor extends Command implements TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String[] args) {
         SubCommand sub = args.length == 0 ? null : children.get(args[0]);
-        if (sub == null) return false;
+        if (sub == null) {
+            sendException.accept(sender,
+                    new CommandException("base.exception.command-not-found", new HashMap<>()));
+            return false;
+        }
 
         try {
             return sub.routeCall(sender, args);
