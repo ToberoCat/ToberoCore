@@ -100,6 +100,9 @@ public abstract class SubCommand extends Command {
 
     @Override
     public boolean showInTab(@NotNull CommandSender sender, @NotNull String[] args) {
+        if (!sender.hasPermission(getPermission()))
+            return false;
+
         return Arrays.stream(onTabOptions).allMatch(x -> x.show(sender, args));
     }
 
