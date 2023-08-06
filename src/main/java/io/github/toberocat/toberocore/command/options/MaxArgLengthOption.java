@@ -9,21 +9,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class MaxArgLengthOption implements Option {
-    private final @NotNull Set<String> antiSpam;
-    private final @NotNull JavaPlugin plugin;
     private final int maxLengthOfArg;
     private final int index;
-    private final int spamEntryLifetime;
 
 
-    public MaxArgLengthOption(@NotNull JavaPlugin plugin, int index, int maxLengthOfArg, int spamEntryLifetime) {
+    public MaxArgLengthOption(int index, int maxLengthOfArg) {
         this.maxLengthOfArg = maxLengthOfArg;
         this.index = index;
-        this.antiSpam = new HashSet<>();
-        this.spamEntryLifetime = spamEntryLifetime;
-        this.plugin = plugin;
     }
 
     @Override
@@ -32,8 +27,7 @@ public class MaxArgLengthOption implements Option {
             return args;
 
         int length = args[index].length();
-        if (length > maxLengthOfArg && !antiSpam.contains(sender.getName())) {
-            addToSent(sender);
+        if (length > maxLengthOfArg) {
             throw new CommandException("base.exceptions.max-arg-length-exceeded", new PlaceholderBuilder<>()
                     .placeholder("max-characters", maxLengthOfArg)
                     .placeholder("position", index)
@@ -41,22 +35,6 @@ public class MaxArgLengthOption implements Option {
                     .getPlaceholders());
         }
 
-        if (length <= maxLengthOfArg && antiSpam.contains(sender.getName())) {
-            removeFromSent(sender);
-            throw new CommandException("base.exceptions.max-arg-length-bounded", new PlaceholderBuilder<>()
-                    .placeholder("max-characters", maxLengthOfArg)
-                    .getPlaceholders());
-        }
-
         return args;
-    }
-
-    private void addToSent(@NotNull CommandSender sender) {
-        antiSpam.add(sender.getName());
-        Bukkit.getScheduler().runTaskLater(plugin, () -> antiSpam.remove(sender.getName()), spamEntryLifetime);
-    }
-
-    private void removeFromSent(@NotNull CommandSender sender) {
-        antiSpam.remove(sender.getName());
     }
 }
