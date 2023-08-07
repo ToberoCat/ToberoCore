@@ -8,18 +8,17 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 
 public class CommandExecutor extends Command implements TabExecutor {
+    private static final Map<String, CommandExecutor> executors = new HashMap<>();
     private @NotNull BiConsumer<CommandSender, CommandException> sendException;
 
     private CommandExecutor(@NotNull PluginCommand command) {
         super(command.getLabel(), command.getLabel());
+        executors.put(label, this);
 
         command.setExecutor(this);
         command.setTabCompleter(this);
@@ -31,6 +30,10 @@ public class CommandExecutor extends Command implements TabExecutor {
         if (pluginCommand == null) throw new RuntimeException("Plugin Command " + command + " is null");
 
         return new CommandExecutor(pluginCommand);
+    }
+
+    public static @Nullable CommandExecutor getExecutor(@NotNull String command) {
+        return executors.get(command);
     }
 
     @Override

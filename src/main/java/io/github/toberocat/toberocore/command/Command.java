@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public abstract class Command {
@@ -33,6 +34,17 @@ public abstract class Command {
 
     public @NotNull Map<String, SubCommand> getChildren() {
         return children;
+    }
+
+    public @Nullable SubCommand getChild(@NotNull String label) {
+        return children.get(label);
+    }
+
+    public @NotNull Optional<SubCommand> searchChild(@NotNull Class<? extends SubCommand> clazz) {
+        return children.values()
+                .stream()
+                .filter(x -> x.getClass().equals(clazz))
+                .findAny();
     }
 
     public abstract boolean showInTab(@NotNull CommandSender sender, @NotNull String[] args);
