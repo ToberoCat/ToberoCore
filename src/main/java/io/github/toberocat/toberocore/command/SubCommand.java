@@ -1,5 +1,6 @@
 package io.github.toberocat.toberocore.command;
 
+import com.google.common.collect.Streams;
 import io.github.toberocat.toberocore.command.exceptions.CommandException;
 import io.github.toberocat.toberocore.command.options.Option;
 import io.github.toberocat.toberocore.command.options.Options;
@@ -18,6 +19,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 
 public abstract class SubCommand extends Command {
@@ -103,7 +105,8 @@ public abstract class SubCommand extends Command {
         if (!sender.hasPermission(getPermission()))
             return false;
 
-        return Arrays.stream(onTabOptions).allMatch(x -> x.show(sender, args));
+        return Stream.concat(Arrays.stream(onTabOptions), Arrays.stream(onCommandOptions))
+                .allMatch(x -> x.show(sender, args));
     }
 
     public @NotNull ConfigurationSection getConfig(@NotNull JavaPlugin plugin) {
