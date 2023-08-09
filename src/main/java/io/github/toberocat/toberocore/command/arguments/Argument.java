@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface Argument<R> {
-    @NotNull R parse(@NotNull Player player, @NotNull String arg) throws CommandException;
+    R parse(@NotNull Player player, @NotNull String arg) throws CommandException;
 
     @Nullable List<String> tab(@NotNull CommandSender player) throws CommandException;
 
