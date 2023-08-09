@@ -11,7 +11,7 @@ import java.util.List;
 public interface Argument<R> {
     R parse(@NotNull Player player, @NotNull String arg) throws CommandException;
 
-    default R defaultValue() {
+    default R defaultValue(@NotNull Player player) {
         return null;
     }
 
