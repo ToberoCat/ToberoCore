@@ -1,6 +1,7 @@
 package io.github.toberocat.toberocore.command;
 
-import com.google.common.collect.Streams;
+import io.github.toberocat.toberocore.command.arguments.Argument;
+import io.github.toberocat.toberocore.command.arguments.Arguments;
 import io.github.toberocat.toberocore.command.exceptions.CommandException;
 import io.github.toberocat.toberocore.command.options.Option;
 import io.github.toberocat.toberocore.command.options.Options;
@@ -9,14 +10,15 @@ import io.github.toberocat.toberocore.util.placeholder.PlaceholderBuilder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -28,24 +30,29 @@ public abstract class SubCommand extends Command {
     protected final Option[] onCommandOptions;
     protected final Option[] onTabOptions;
 
+    protected final Argument<?>[] args;
 
-    public SubCommand(@NotNull JavaPlugin plugin, @NotNull String label) {
-        this(label, Options.getFromConfig(plugin, label));
+    public SubCommand(@NotNull String label) {
+        this(label, label);
     }
 
-    public SubCommand(@NotNull String label, @NotNull Options options) {
-        this(label, label, options);
-    }
-
-    public SubCommand(@NotNull String permission, @NotNull String label, @NotNull Options options) {
-        this(permission, label, options.getCommandOptions(), options.getTabOptions());
-    }
-
-    public SubCommand(@NotNull String permission, @NotNull String label, Option[] onCommandOptions, Option[] onTabOptions) {
+    public SubCommand(@NotNull String permission, @NotNull String label) {
         super(permission, label);
         this.label = label;
-        this.onCommandOptions = onCommandOptions;
-        this.onTabOptions = onTabOptions;
+
+        Options options = options();
+        onCommandOptions = options.getCommandOptions();
+        onTabOptions = options.getTabOptions();
+
+        args = arguments();
+    }
+
+    protected abstract @NotNull Options options();
+    protected abstract @NotNull Argument<?>[] arguments();
+
+    protected @NotNull Arguments parseArgs(@NotNull Player player, String[] args)
+            throws CommandException {
+        return new Arguments(player, args, this.args);
     }
 
     public static @NotNull ConfigurationSection getConfig(@NotNull JavaPlugin plugin, @NotNull String path) {
@@ -76,9 +83,11 @@ public abstract class SubCommand extends Command {
         return handleWithOptions(sender, newArgs);
     }
 
-    public @Nullable List<String> routeTab(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
+    public @Nullable List<String> routeTab(@NotNull CommandSender sender, @NotNull String[] args)
+            throws CommandException {
         if (!sender.hasPermission(getPermission())) return null;
-        if (args.length == 0) return childrenTabList(sender, args);
+        if (args.length == 0)
+            return childrenTabList(sender, args);
 
         String[] newArgs = new String[args.length - 1];
         System.arraycopy(args, 1, newArgs, 0, newArgs.length);
@@ -97,7 +106,10 @@ public abstract class SubCommand extends Command {
     private @Nullable List<String> getTabWithOptions(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
         for (Option option : onTabOptions)
             args = option.execute(sender, args);
-        return getTabList(sender, args);
+        if (args.length - 1 >= this.args.length)
+            throw new CommandException("base.exceptions.too-many-args", new HashMap<>());
+
+        return this.args[args.length - 1].tab(sender);
     }
 
     @Override
@@ -109,11 +121,13 @@ public abstract class SubCommand extends Command {
                 .allMatch(x -> x.show(sender, args));
     }
 
+    public @NotNull Argument<?>[] getArgs() {
+        return args;
+    }
+
     public @NotNull ConfigurationSection getConfig(@NotNull JavaPlugin plugin) {
         return getConfig(plugin, getPermission());
     }
 
     protected abstract boolean handleCommand(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException;
-
-    protected abstract @Nullable List<String> getTabList(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException;
 }
