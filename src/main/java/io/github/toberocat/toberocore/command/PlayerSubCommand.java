@@ -31,7 +31,4 @@ public abstract class PlayerSubCommand extends SubCommand {
 
     protected abstract boolean handle(@NotNull Player player, @NotNull String[] args)
             throws CommandException;
-
-    protected abstract @Nullable List<String> getTab(@NotNull Player player, @NotNull String[] args)
-            throws CommandException;
 }
