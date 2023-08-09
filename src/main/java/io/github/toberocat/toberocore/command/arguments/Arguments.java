@@ -29,7 +29,7 @@ public class Arguments {
         if (index >= argumentProcessors.length)
             return null;
         if (index >= args.length)
-            return (R) argumentProcessors[index].defaultValue();
+            return (R) argumentProcessors[index].defaultValue(player);
         return (R) argumentProcessors[index].parse(player, args[index]);
     }
 }
