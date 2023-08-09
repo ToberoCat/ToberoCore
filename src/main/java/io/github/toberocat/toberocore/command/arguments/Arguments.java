@@ -25,12 +25,11 @@ public class Arguments {
         this.player = player;
     }
 
-    public <R> @NotNull R get(int index) throws CommandException {
-        return (R) argumentProcessors[index].parse(player, args[index]);
-    }
-    public <R> @Nullable R getOrNull(int index) throws CommandException {
-        if (index >= argumentProcessors.length || index >= args.length)
+    public <R> @Nullable R get(int index) throws CommandException {
+        if (index >= argumentProcessors.length)
             return null;
+        if (index >= args.length)
+            return (R) argumentProcessors[index].defaultValue();
         return (R) argumentProcessors[index].parse(player, args[index]);
     }
 }

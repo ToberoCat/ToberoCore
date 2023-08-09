@@ -11,9 +11,14 @@ import java.util.List;
 public interface Argument<R> {
     R parse(@NotNull Player player, @NotNull String arg) throws CommandException;
 
+    default R defaultValue() {
+        return null;
+    }
+
     @Nullable List<String> tab(@NotNull CommandSender player) throws CommandException;
 
     @NotNull String descriptionKey();
 
     @NotNull String usage();
+
 }
