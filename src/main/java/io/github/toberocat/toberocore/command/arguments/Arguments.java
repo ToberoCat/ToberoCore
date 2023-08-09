@@ -24,7 +24,7 @@ public class Arguments {
         this.player = player;
     }
 
-    public <R> @NotNull R get(int index) {
+    public <R> @NotNull R get(int index) throws CommandException {
         return (R) argumentProcessors[index].parse(player, args[index]);
     }
 }
