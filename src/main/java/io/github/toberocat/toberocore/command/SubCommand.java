@@ -99,11 +99,11 @@ public abstract class SubCommand extends Command {
         for (Option option : onTab())
             args = option.execute(sender, args);
         if (args.length - 1 >= getArgs().length)
-            throw new CommandException("base.exceptions.too-many-args", new HashMap<>());
+            return childrenTabList(sender, args);
 
         if (sender instanceof Player player)
             return getArgs()[args.length - 1].tab(player);
-        return Collections.emptyList();
+        return childrenTabList(sender, args);
     }
 
     @Override
