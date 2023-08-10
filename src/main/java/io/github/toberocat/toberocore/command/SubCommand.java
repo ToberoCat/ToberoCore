@@ -24,10 +24,10 @@ import java.util.stream.Stream;
 public abstract class SubCommand extends Command {
 
     protected final String label;
-    protected final Option[] onCommandOptions;
-    protected final Option[] onTabOptions;
+    protected @Nullable Option[] onCommandOptions;
+    protected @Nullable Option[] onTabOptions;
 
-    protected final Argument<?>[] args;
+    protected @Nullable Argument<?>[] args;
 
     public SubCommand(@NotNull String label) {
         this(label, label);
@@ -36,12 +36,6 @@ public abstract class SubCommand extends Command {
     public SubCommand(@NotNull String permission, @NotNull String label) {
         super(permission, label);
         this.label = label;
-
-        Options options = options();
-        onCommandOptions = options.getCommandOptions();
-        onTabOptions = options.getTabOptions();
-
-        args = arguments();
     }
 
     protected abstract @NotNull Options options();
@@ -50,7 +44,7 @@ public abstract class SubCommand extends Command {
 
     protected @NotNull Arguments parseArgs(@NotNull Player player, String[] args)
             throws CommandException {
-        return new Arguments(player, args, this.args);
+        return new Arguments(player, args, getArgs());
     }
 
     public static @NotNull ConfigurationSection getConfig(@NotNull JavaPlugin plugin, @NotNull String path) {
@@ -96,19 +90,19 @@ public abstract class SubCommand extends Command {
     }
 
     private boolean handleWithOptions(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
-        for (Option option : onCommandOptions)
+        for (Option option : onCommand())
             args = option.execute(sender, args);
         return handleCommand(sender, args);
     }
 
     private @Nullable List<String> getTabWithOptions(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
-        for (Option option : onTabOptions)
+        for (Option option : onTab())
             args = option.execute(sender, args);
         if (args.length - 1 >= this.args.length)
             throw new CommandException("base.exceptions.too-many-args", new HashMap<>());
 
         if (sender instanceof Player player)
-            return this.args[args.length - 1].tab(player);
+            return getArgs()[args.length - 1].tab(player);
         return Collections.emptyList();
     }
 
@@ -117,12 +111,8 @@ public abstract class SubCommand extends Command {
         if (!sender.hasPermission(getPermission()))
             return false;
 
-        return Stream.concat(Arrays.stream(onTabOptions), Arrays.stream(onCommandOptions))
+        return Stream.concat(Arrays.stream(onTab()), Arrays.stream(onCommand()))
                 .allMatch(x -> x.show(sender, args));
-    }
-
-    public @NotNull Argument<?>[] getArgs() {
-        return args;
     }
 
     public @NotNull ConfigurationSection getConfig(@NotNull JavaPlugin plugin) {
@@ -130,4 +120,28 @@ public abstract class SubCommand extends Command {
     }
 
     protected abstract boolean handleCommand(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException;
+
+    private @NotNull Option[] onCommand() {
+        if (onCommandOptions == null) {
+            Options options = options();
+            onCommandOptions = options.getCommandOptions();
+            onTabOptions = options.getTabOptions();
+        }
+        return onCommandOptions;
+    }
+
+    private @NotNull Option[] onTab() {
+        if (onTabOptions == null) {
+            Options options = options();
+            onCommandOptions = options.getCommandOptions();
+            onTabOptions = options.getTabOptions();
+        }
+        return onTabOptions;
+    }
+
+    public @NotNull Argument<?>[] getArgs() {
+        if (args == null)
+            args = arguments();
+        return args;
+    }
 }
