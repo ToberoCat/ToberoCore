@@ -14,12 +14,7 @@ public class Arguments {
 
     public Arguments(@NotNull Player player,
                      @NotNull String[] args,
-                     @NotNull Argument<?>[] argumentProcessors)
-            throws CommandException {
-        if (argumentProcessors.length == args.length)
-            throw new CommandException("base.command.exceptions.insufficnet-argumnets-provided",
-                    new HashMap<>());
-
+                     @NotNull Argument<?>[] argumentProcessors) {
         this.args = args;
         this.argumentProcessors = argumentProcessors;
         this.player = player;
