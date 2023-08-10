@@ -17,10 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -48,6 +45,7 @@ public abstract class SubCommand extends Command {
     }
 
     protected abstract @NotNull Options options();
+
     protected abstract @NotNull Argument<?>[] arguments();
 
     protected @NotNull Arguments parseArgs(@NotNull Player player, String[] args)
@@ -109,7 +107,9 @@ public abstract class SubCommand extends Command {
         if (args.length - 1 >= this.args.length)
             throw new CommandException("base.exceptions.too-many-args", new HashMap<>());
 
-        return this.args[args.length - 1].tab(sender);
+        if (sender instanceof Player player)
+            return this.args[args.length - 1].tab(player);
+        return Collections.emptyList();
     }
 
     @Override

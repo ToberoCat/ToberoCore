@@ -15,7 +15,7 @@ public interface Argument<R> {
         return null;
     }
 
-    @Nullable List<String> tab(@NotNull CommandSender player) throws CommandException;
+    @Nullable List<String> tab(@NotNull Player player) throws CommandException;
 
     @NotNull String descriptionKey();
 
