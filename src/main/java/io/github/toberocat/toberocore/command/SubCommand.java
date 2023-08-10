@@ -98,7 +98,7 @@ public abstract class SubCommand extends Command {
     private @Nullable List<String> getTabWithOptions(@NotNull CommandSender sender, @NotNull String[] args) throws CommandException {
         for (Option option : onTab())
             args = option.execute(sender, args);
-        if (args.length - 1 >= this.args.length)
+        if (args.length - 1 >= getArgs().length)
             throw new CommandException("base.exceptions.too-many-args", new HashMap<>());
 
         if (sender instanceof Player player)
