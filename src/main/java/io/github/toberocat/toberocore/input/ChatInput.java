@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ public class ChatInput implements Listener {
 
     public static void prompt(@NotNull JavaPlugin plugin,
                               @NotNull Player player,
-                              @NotNull String message,
+                              @Nullable String message,
                               @NotNull Consumer<String> callback) {
         prompt(plugin, player, message, msg -> {
             callback.accept(msg);
@@ -37,9 +38,10 @@ public class ChatInput implements Listener {
 
     public static void prompt(@NotNull JavaPlugin plugin,
                               @NotNull Player player,
-                              @NotNull String message,
+                              @Nullable String message,
                               @NotNull Function<String, Action> callback) {
-        player.sendMessage(String.format(message));
+        if (message != null)
+            player.sendMessage(String.format(message));
         ChatInput chatInput = new ChatInput(player.getUniqueId(), callback);
         plugin.getServer().getPluginManager().registerEvents(chatInput, plugin);
     }
