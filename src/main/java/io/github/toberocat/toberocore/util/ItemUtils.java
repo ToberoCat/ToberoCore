@@ -1,5 +1,7 @@
 package io.github.toberocat.toberocore.util;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,6 +17,7 @@ import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -88,13 +91,26 @@ public final class ItemUtils {
         return item;
     }
 
-    public static @NotNull ItemStack createHead(@NotNull String textureId, @NotNull String title, int amount, @NotNull String... lore) {
-        ItemStack head = createItem(Material.PLAYER_HEAD, title, amount, lore);
-        if (!(head.getItemMeta() instanceof SkullMeta headMeta)) return head;
+    public static @NotNull ItemStack createHead(@NotNull String textureId,
+                                                @NotNull String title,
+                                                int amount,
+                                                @NotNull String... lore) {
+        ItemStack head = ItemUtils.createItem(Material.PLAYER_HEAD, title, amount, lore);
+        if (textureId.isEmpty()) {
+            return head;
+        }
 
-        PlayerProfile profile = getProfile("https://textures.minecraft.net/texture/" + textureId);
-        headMeta.setOwnerProfile(profile);
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        profile.getProperties().put("textures", new Property("textures", textureId));
+        Field profileField;
+        try {
+            profileField = headMeta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(headMeta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ignored) {
 
+        }
         head.setItemMeta(headMeta);
         return head;
     }
@@ -137,28 +153,5 @@ public final class ItemUtils {
 
     private static @NotNull Component component(@NotNull String title) {
         return Component.text(format(title));
-    }
-
-    private static PlayerProfile getProfile(@NotNull String url) {
-        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
-        PlayerTextures textures = profile.getTextures();
-        URL urlObject;
-        try {
-            urlObject = new URL(url);
-        } catch (MalformedURLException exception) {
-            try {
-                urlObject = getUrlFromBase64(url);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException("Invalid URL", exception);
-            }
-        }
-        textures.setSkin(urlObject);
-        profile.setTextures(textures);
-        return profile;
-    }
-
-    private static URL getUrlFromBase64(@NotNull String base64) throws MalformedURLException {
-        String decoded = new String(Base64.getDecoder().decode(base64));
-        return new URL(decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length()));
     }
 }
