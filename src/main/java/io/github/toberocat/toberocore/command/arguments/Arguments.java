@@ -23,7 +23,7 @@ public class Arguments {
     public <R> @Nullable R get(int index) throws CommandException {
         if (index >= argumentProcessors.length)
             return null;
-        if (index >= args.length)
+        if (index >= args.length || args[index].isBlank())
             return (R) argumentProcessors[index].defaultValue(player);
         return (R) argumentProcessors[index].parse(player, args[index]);
     }
