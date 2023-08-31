@@ -5,6 +5,7 @@ import io.github.toberocat.toberocore.util.StreamUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +26,11 @@ public final class ActionCore {
         new SoundAction().register();
         new PlayerCommandAction().register();
         new TitleAction().register();
+    }
+
+
+    public static void bindActions(@NotNull JavaPlugin plugin) {
+        new ConnectAction(plugin).register();
     }
 
     public static void register(@NotNull Action action) {
