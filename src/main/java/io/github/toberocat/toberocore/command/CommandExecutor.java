@@ -10,11 +10,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 public class CommandExecutor extends Command implements TabExecutor {
     private static final Map<String, CommandExecutor> executors = new HashMap<>();
     private @NotNull BiConsumer<CommandSender, CommandException> sendException;
+    private BiConsumer<CommandSender, Integer> nothing = (sender, args) -> sendException.accept(sender,
+            new CommandException("base.exception.command-not-found", new HashMap<>()));
+    ;
 
     private CommandExecutor(@NotNull PluginCommand command) {
         super(command.getLabel(), command.getLabel());
@@ -40,8 +44,7 @@ public class CommandExecutor extends Command implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String[] args) {
         SubCommand sub = args.length == 0 ? null : children.get(args[0]);
         if (sub == null) {
-            sendException.accept(sender,
-                    new CommandException("base.exception.command-not-found", new HashMap<>()));
+            nothing.accept(sender, args.length);
             return false;
         }
 
@@ -104,6 +107,11 @@ public class CommandExecutor extends Command implements TabExecutor {
         SubCommand sub = children.get(args[0]);
 
         return sub == null ? null : sub.routeTab(sender, args);
+    }
+
+    public CommandExecutor setNothing(BiConsumer<CommandSender, Integer> nothing) {
+        this.nothing = nothing;
+        return this;
     }
 
     @Override
