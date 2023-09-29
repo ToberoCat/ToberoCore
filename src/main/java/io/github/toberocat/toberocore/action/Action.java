@@ -19,6 +19,9 @@ public abstract class Action {
      */
     public abstract @NotNull String label();
 
+    public boolean sync() {
+        return true;
+    }
     /* Sender */
 
     public void run(@NotNull CommandSender commandSender) {

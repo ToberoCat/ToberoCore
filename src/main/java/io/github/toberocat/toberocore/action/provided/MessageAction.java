@@ -16,4 +16,9 @@ public class MessageAction extends Action {
     public void run(@NotNull CommandSender commandSender, @NotNull String provided) {
         commandSender.sendMessage(StringUtils.format(provided));
     }
+
+    @Override
+    public boolean sync() {
+        return false;
+    }
 }
