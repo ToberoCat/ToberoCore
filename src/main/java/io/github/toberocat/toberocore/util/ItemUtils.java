@@ -101,7 +101,7 @@ public final class ItemUtils {
         }
 
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "Tobero");
         profile.getProperties().put("textures", new Property("textures", textureId));
         Field profileField;
         try {
