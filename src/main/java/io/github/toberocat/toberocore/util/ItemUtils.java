@@ -99,20 +99,30 @@ public final class ItemUtils {
         if (textureId.isEmpty()) {
             return head;
         }
-
-        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "Tobero");
-        profile.getProperties().put("textures", new Property("textures", textureId));
-        Field profileField;
         try {
-            profileField = headMeta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(headMeta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException ignored) {
-
+            PlayerProfile profile = getProfile(textureId);
+            SkullMeta meta = (SkullMeta) head.getItemMeta();
+            assert meta != null;
+            meta.setOwnerProfile(profile);
+            head.setItemMeta(meta);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
-        head.setItemMeta(headMeta);
         return head;
+    }
+
+    private static PlayerProfile getProfile(String base64) throws MalformedURLException {
+        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID()); // Get a new player profile
+        PlayerTextures textures = profile.getTextures();
+        URL urlObject = getUrlFromBase64(base64);
+        textures.setSkin(urlObject); // Set the skin of the player profile to the URL
+        profile.setTextures(textures); // Set the textures back to the profile
+        return profile;
+    }
+
+    public static URL getUrlFromBase64(String base64) throws MalformedURLException {
+        String decoded = new String(Base64.getDecoder().decode(base64));
+        return new URL(decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length()));
     }
 
 
